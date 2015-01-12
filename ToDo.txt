@@ -1,12 +1,19 @@
 INVERSE KINEMATICS WITH DUAL-QUATERNION
 WhWeWaToDo:
 1st: Move a simple arm model, with two bones, one of them anchored. 
-  - Create the GIT repository.
-  - Program the dual-quaternion (REF: Check Andy's class).
+  - Create the GIT repository. (Check)
+  - Program the dual-quaternion (REF: Check Andy's class). (Started)
   - Program the bones-joints-arm structure -as a skeleton- (classes and so).
+      - Do it with a sphere+cylinder "bone".
+      - Position of the arm (joint) - sphere.
+      - Orientation of the arm (bone) - cylinder.orientation.
+      
+      - Length of the arm (bone) -cylinder.length. (position of the next arm sphere)
   - "Build" the arm (three degrees of freedom).
-  - Program the inverse kinematics (mysterious box).
-      - To do so, we will use the "Jacobian" matrix.
+  - Solve how to move the arm.
+      - Lazy random solution (incremental).
+      - Program the inverse kinematics (mysterious box).
+          - To do so, we will use the "Jacobian" matrix.
 2nd: Add claw (and grab things?) and add other objects and table
   - Add the claw to the hand (not inverse kinematics).
   - Add objects to be grabbed.
