@@ -11,7 +11,7 @@
 
 #include "../../octet.h"
 
-#include "IK-RobotArm.h"
+#include "IKRobotArm.h"
 
 /// Create a box with octet
 int main(int argc, char **argv) {
@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   octet::app::init_all(argc, argv);
 
   // our application.
-  octet::IK-RobotArm app(argc, argv);
+  octet::IKRobotArm app(argc, argv);
   app.init();
 
   // open windows
