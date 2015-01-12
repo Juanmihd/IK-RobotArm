@@ -6,6 +6,7 @@ WhWeWaToDo:
   - Program the bones-joints-arm structure -as a skeleton- (classes and so).
   - "Build" the arm (three degrees of freedom).
   - Program the inverse kinematics (mysterious box).
+      - To do so, we will use the "Jacobian" matrix.
 2nd: Add claw (and grab things?) and add other objects and table
   - Add the claw to the hand (not inverse kinematics).
   - Add objects to be grabbed.
