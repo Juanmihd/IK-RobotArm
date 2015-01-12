@@ -1,0 +1,227 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{6722CC8F-3FC9-4B11-B7AE-918054DD5ACA}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>IK-RobotArm</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\..\bin\</OutDir>
+    <IntDir>$(SolutionDir)..\..\..\bin\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_debug</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)..\..\..\bin\</OutDir>
+    <IntDir>$(SolutionDir)..\..\..\bin\$(ProjectName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\containers\allocator.h" />
+    <ClInclude Include="..\..\containers\bitset.h" />
+    <ClInclude Include="..\..\containers\containers.h" />
+    <ClInclude Include="..\..\containers\dictionary.h" />
+    <ClInclude Include="..\..\containers\double_list.h" />
+    <ClInclude Include="..\..\containers\dynarray.h" />
+    <ClInclude Include="..\..\containers\hash_map.h" />
+    <ClInclude Include="..\..\containers\ref.h" />
+    <ClInclude Include="..\..\containers\string.h" />
+    <ClInclude Include="..\..\helpers\http_server.h" />
+    <ClInclude Include="..\..\helpers\mouse_ball.h" />
+    <ClInclude Include="..\..\helpers\object_picker.h" />
+    <ClInclude Include="..\..\helpers\text_overlay.h" />
+    <ClInclude Include="..\..\loaders\collada_builder.h" />
+    <ClInclude Include="..\..\loaders\dds_decoder.h" />
+    <ClInclude Include="..\..\loaders\gif_decoder.h" />
+    <ClInclude Include="..\..\loaders\jpeg_decoder.h" />
+    <ClInclude Include="..\..\loaders\jpeg_encoder.h" />
+    <ClInclude Include="..\..\loaders\loaders.h" />
+    <ClInclude Include="..\..\loaders\nifti_decoder.h" />
+    <ClInclude Include="..\..\loaders\tga_decoder.h" />
+    <ClInclude Include="..\..\loaders\zip_decoder.h" />
+    <ClInclude Include="..\..\math\aabb.h" />
+    <ClInclude Include="..\..\math\bvec2.h" />
+    <ClInclude Include="..\..\math\bvec3.h" />
+    <ClInclude Include="..\..\math\bvec4.h" />
+    <ClInclude Include="..\..\math\half_space.h" />
+    <ClInclude Include="..\..\math\ivec3.h" />
+    <ClInclude Include="..\..\math\ivec4.h" />
+    <ClInclude Include="..\..\math\mat4t.h" />
+    <ClInclude Include="..\..\math\math.h" />
+    <ClInclude Include="..\..\math\obb.h" />
+    <ClInclude Include="..\..\math\plane.h" />
+    <ClInclude Include="..\..\math\polygon.h" />
+    <ClInclude Include="..\..\math\quat.h" />
+    <ClInclude Include="..\..\math\random.h" />
+    <ClInclude Include="..\..\math\rational.h" />
+    <ClInclude Include="..\..\math\ray.h" />
+    <ClInclude Include="..\..\math\scalar.h" />
+    <ClInclude Include="..\..\math\sphere.h" />
+    <ClInclude Include="..\..\math\vec2.h" />
+    <ClInclude Include="..\..\math\vec3.h" />
+    <ClInclude Include="..\..\math\vec4.h" />
+    <ClInclude Include="..\..\math\zcylinder.h" />
+    <ClInclude Include="..\..\platform\AL\al.h" />
+    <ClInclude Include="..\..\platform\AL\alc.h" />
+    <ClInclude Include="..\..\platform\AL\efx-creative.h" />
+    <ClInclude Include="..\..\platform\AL\EFX-Util.h" />
+    <ClInclude Include="..\..\platform\AL\efx.h" />
+    <ClInclude Include="..\..\platform\AL\xram.h" />
+    <ClInclude Include="..\..\platform\al_defs.h" />
+    <ClInclude Include="..\..\platform\app_common.h" />
+    <ClInclude Include="..\..\platform\args_parser.h" />
+    <ClInclude Include="..\..\platform\CL\cl.h" />
+    <ClInclude Include="..\..\platform\CL\cl_d3d10_ext.h" />
+    <ClInclude Include="..\..\platform\CL\cl_d3d11_ext.h" />
+    <ClInclude Include="..\..\platform\CL\cl_d3d9_ext.h" />
+    <ClInclude Include="..\..\platform\CL\cl_ext.h" />
+    <ClInclude Include="..\..\platform\CL\cl_gl.h" />
+    <ClInclude Include="..\..\platform\CL\cl_gl_ext.h" />
+    <ClInclude Include="..\..\platform\CL\cl_platform.h" />
+    <ClInclude Include="..\..\platform\CL\opencl.h" />
+    <ClInclude Include="..\..\platform\configure.h" />
+    <ClInclude Include="..\..\platform\direct_show.h" />
+    <ClInclude Include="..\..\platform\generic.h" />
+    <ClInclude Include="..\..\platform\glut_specific.h" />
+    <ClInclude Include="..\..\platform\GL\freeglut.h" />
+    <ClInclude Include="..\..\platform\GL\freeglut_ext.h" />
+    <ClInclude Include="..\..\platform\GL\freeglut_std.h" />
+    <ClInclude Include="..\..\platform\GL\glut.h" />
+    <ClInclude Include="..\..\platform\gl_defs.h" />
+    <ClInclude Include="..\..\platform\gl_skeleton.h" />
+    <ClInclude Include="..\..\platform\machine_specific.h" />
+    <ClInclude Include="..\..\platform\opencl.h" />
+    <ClInclude Include="..\..\platform\video_capture.h" />
+    <ClInclude Include="..\..\platform\windows_specific.h" />
+    <ClInclude Include="..\..\resources\app_utils.h" />
+    <ClInclude Include="..\..\resources\atoms.h" />
+    <ClInclude Include="..\..\resources\binary_reader.h" />
+    <ClInclude Include="..\..\resources\binary_writer.h" />
+    <ClInclude Include="..\..\resources\bitmap_font.h" />
+    <ClInclude Include="..\..\resources\classes.h" />
+    <ClInclude Include="..\..\resources\file_map.h" />
+    <ClInclude Include="..\..\resources\gl_resource.h" />
+    <ClInclude Include="..\..\resources\http_writer.h" />
+    <ClInclude Include="..\..\resources\job.h" />
+    <ClInclude Include="..\..\resources\mesh_builder.h" />
+    <ClInclude Include="..\..\resources\resource.h" />
+    <ClInclude Include="..\..\resources\resources.h" />
+    <ClInclude Include="..\..\resources\resource_dict.h" />
+    <ClInclude Include="..\..\resources\url_finder.h" />
+    <ClInclude Include="..\..\resources\visitor.h" />
+    <ClInclude Include="..\..\resources\xml_writer.h" />
+    <ClInclude Include="..\..\resources\zip_file.h" />
+    <ClInclude Include="..\..\scene\animation.h" />
+    <ClInclude Include="..\..\scene\animation_instance.h" />
+    <ClInclude Include="..\..\scene\camera_instance.h" />
+    <ClInclude Include="..\..\scene\displacement_map.h" />
+    <ClInclude Include="..\..\scene\image.h" />
+    <ClInclude Include="..\..\scene\indexer.h" />
+    <ClInclude Include="..\..\scene\light.h" />
+    <ClInclude Include="..\..\scene\light_instance.h" />
+    <ClInclude Include="..\..\scene\material.h" />
+    <ClInclude Include="..\..\scene\mesh.h" />
+    <ClInclude Include="..\..\scene\mesh_box.h" />
+    <ClInclude Include="..\..\scene\mesh_cylinder.h" />
+    <ClInclude Include="..\..\scene\mesh_instance.h" />
+    <ClInclude Include="..\..\scene\mesh_particle_system.h" />
+    <ClInclude Include="..\..\scene\mesh_points.h" />
+    <ClInclude Include="..\..\scene\mesh_sphere.h" />
+    <ClInclude Include="..\..\scene\mesh_text.h" />
+    <ClInclude Include="..\..\scene\mesh_voxels.h" />
+    <ClInclude Include="..\..\scene\mesh_voxel_subcube.h" />
+    <ClInclude Include="..\..\scene\param.h" />
+    <ClInclude Include="..\..\scene\sampler.h" />
+    <ClInclude Include="..\..\scene\scene.h" />
+    <ClInclude Include="..\..\scene\scene_node.h" />
+    <ClInclude Include="..\..\scene\skeleton.h" />
+    <ClInclude Include="..\..\scene\skin.h" />
+    <ClInclude Include="..\..\scene\smooth.h" />
+    <ClInclude Include="..\..\scene\visual_scene.h" />
+    <ClInclude Include="..\..\scene\wireframe.h" />
+    <ClInclude Include="..\..\shaders\bump_shader.h" />
+    <ClInclude Include="..\..\shaders\color_shader.h" />
+    <ClInclude Include="..\..\shaders\compute_shader.h" />
+    <ClInclude Include="..\..\shaders\phong_shader.h" />
+    <ClInclude Include="..\..\shaders\shader.h" />
+    <ClInclude Include="..\..\shaders\shaders.h" />
+    <ClInclude Include="..\..\shaders\texture_shader.h" />
+    <ClInclude Include="IK-RobotArm.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\resources\mesh_builder.inl" />
+    <None Include="..\..\resources\resources.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
