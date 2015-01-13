@@ -5,8 +5,11 @@
 // Modular Framework for OpenGLES2 rendering on multiple platforms.
 //
 
-#include "dualquat.h"
+#ifndef IKROBOTARM_H_DEFINED
+#define IKROBOTARM_H_DEFINED
 
+#include "dualquat.h"
+#include "bone.h"
 
 namespace octet {
   /// Scene containing a box with octet.
@@ -49,3 +52,5 @@ namespace octet {
     }
   };
 }
+
+#endif
