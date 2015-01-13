@@ -3,12 +3,12 @@ WhWeWaToDo:
 1st: Move a simple arm model, with two bones, one of them anchored. 
   - Create the GIT repository. (Check)
   - Program the dual-quaternion (REF: Check Andy's class). (Check)
-  - Program the bones-joints-arm structure -as a skeleton- (classes and so). (Doing)
+  - Program the bones-joints-arm structure -as a skeleton- (classes and so). (Almost-check)
       - Do it with a sphere+cylinder "bone".
       - Position of the arm (joint) - sphere.
       - Orientation of the arm (bone) - cylinder.orientation.
-      
       - Length of the arm (bone) -cylinder.length. (position of the next arm sphere)
+  - Program an 'interface' class for the skeletons(arms...).
   - "Build" the arm (three degrees of freedom).
   - Solve how to move the arm.
       - Lazy random solution (incremental).
