@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// (C) Andy Thomason 2012-2014
+/// @author Sam & Juanmi
 //
 // Modular Framework for OpenGLES2 rendering on multiple platforms.
 //

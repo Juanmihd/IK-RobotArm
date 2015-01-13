@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-// (C) Andy Thomason 2012-2014
+/// @author Sam & Juanmi
 //
 // Modular Framework for OpenGLES2 rendering on multiple platforms.
 //
-// Text overlay
+// This is the Main for the project of the Robotic Arm
 //
 
 #define OCTET_BULLET 1
