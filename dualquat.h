@@ -5,12 +5,11 @@
 /// Small classes that represents a quaternion and a dual-quaternion
 ///
 
-#ifndef DualQuat_H_DEFINED
-#define DualQuat_H_DEFINED
+#ifndef DUALQUAT_H_INCLUDED
+#define DUALQUAT_H_INCLUDED
 
 /// @brief This is a copy of Andy's class quaternionwith some minor improvements
 namespace octet {
-  namespace math {
     class Quaternion : public vec4
     {
     public:
@@ -39,12 +38,10 @@ namespace octet {
         return this->dot(r);
       }
     };
-  }
 }
 
 /// @brief This is the class of the dual quaternion (consisting only in two quaternions together)
 namespace octet{
-  namespace math{
     class DualQuat{
       /// The real part of the dual-quaternion, represents the rotation
       Quaternion real_part;
@@ -124,7 +121,6 @@ namespace octet{
         return n_matrix;
       }
     };
-  }
 }
   
 #endif

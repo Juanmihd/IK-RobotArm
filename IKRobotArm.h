@@ -8,7 +8,6 @@
 #ifndef IKROBOTARM_H_DEFINED
 #define IKROBOTARM_H_DEFINED
 
-#include "dualquat.h"
 #include "DQ_Skeleton.h"
 
 namespace octet {
