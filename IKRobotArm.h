@@ -9,7 +9,7 @@
 #define IKROBOTARM_H_DEFINED
 
 #include "dualquat.h"
-#include "bone.h"
+#include "DQ_Skeleton.h"
 
 namespace octet {
   /// Scene containing a box with octet.

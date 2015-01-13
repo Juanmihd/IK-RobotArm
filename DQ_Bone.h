@@ -22,26 +22,22 @@ namespace octet{
     // World positions
     joints w_positions;
     // Adjacent bones
-    DQ_Bone* parent;
-    dynarray<DQ_Bone*> children;
-    // Meshes
-    mesh_cylinder cylinder;
-    mesh_sphere sphere;
+    DQ_Bone* parent; // The root bone will have a NULL parent
+    dynarray<DQ_Bone*> children; //The leaf bone will have 0 children
 
   public:
     /// @brief Default constructor of the Bone
     DQ_Bone(){}
+
     /// @brief Constructor of the Bone from a Quaternion and a parent
     DQ_Bone(DualQuat n_transfom, DQ_Bone* n_parent){}
+
     /// @brief Adds a new child to the current bone
     void add_child(DQ_Bone* child){}
+
     /// @brief Update the w_positions information checking the parent and with the current dual-quaternion
     /// This function will be called by the skeleton before the draw process starts
     void obtain_joints(){
-    }
-    /// @brief Draw the meshes (cylinder and sphere)
-    /// This function will be called by the skeleton AFTER the obtain joints process has finished
-    void draw(){
     }
   };
 }
