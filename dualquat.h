@@ -70,10 +70,13 @@ namespace octet{
         return *this;
       }
       /// @brief This is to multiply quaternions
-      DualQuat operator*(DualQuat n_DualQuat){
-        real_part = real_part * n_DualQuat.real_part;
-        dual_part = dual_part * n_DualQuat.real_part + real_part * n_DualQuat.dual_part;
+      DualQuat qMult(DualQuat n_DualQuat) const{
+        DualQuat ret;
+        ret.real_part = real_part * n_DualQuat.real_part;
+        ret.dual_part = dual_part * n_DualQuat.real_part + real_part * n_DualQuat.dual_part;
+        return ret;
       }
+
       /// @brief This is to normalize a dual-quaternion
       void normalize(){
         float magnitudine = real_part.dot(real_part);

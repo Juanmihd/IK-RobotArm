@@ -17,7 +17,7 @@ namespace octet{
     //This bone is the root of the skeleton
     ref<DQ_Bone> root_bone;
     //This represent where the root bone is anchored
-    DualQuat transform;
+    DualQuat root_transform;
     //Info to draw the meshes 
     ref<visual_scene> app_scene;
 
@@ -27,17 +27,12 @@ namespace octet{
     dynarray<mesh_instance> skeleton_mesh_instances;
     ref<material> mat_joint;
     ref<material> mat_bone;
-    
-    // position of the skeleton
-    vec3 origin;
 
     /// @brief This function will update all the joints of the bones (starting from the root)
     void update_joints(){
       printf("DQ_Skeleton update_joints call\n");
-      // tell the root bone his root position
-      root_bone->set_root_position(origin);
       // update current bone's joints
-      root_bone->fix_yourself();
+      root_bone->fix_yourself(root_transform);
     }
 
   public:
@@ -45,7 +40,8 @@ namespace octet{
     DQ_Skeleton(){
       printf("DQ_Skeleton Contstructor call \n");
 
-      origin = vec3(0);
+      // Set trasnform root transform somewhere
+
       // Initialising the meshes and materials
       // create the sphere and cylinder meshes used to draw the skeleton
       mesh_joint = new mesh_sphere();

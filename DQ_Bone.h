@@ -14,9 +14,7 @@ namespace octet{
   class DQ_Bone : public resource{
     // This is the dual-quaternion that contains the information of the curren transform
     DualQuat transform; //local
-    // World positions
-    vec3 root_position; //from parent
-    vec3 leaf_position; //from child
+    DualQuat world_transform; // world
 
     //scene_nodes structure
     struct SceneNodes{
@@ -33,9 +31,9 @@ namespace octet{
     /// @brief Updates the world positions of this bone
     /// This function assumes that its parent's joint node has updated world coordinates
     /// This function will fix the world position and the scene_nodes of the joint and bone
-    void update_w_positions(){
-      //CODE TO DO THAT
+    void update_DQ_w_transform(const DualQuat &n_transform){
       //Use dual-quaternions wizzardy to obtain own leaf position
+      world_transform = n_transform.qMult(transform);
     }
 
   public:
@@ -67,8 +65,6 @@ namespace octet{
       child->set_parent(this);
       //add the children
       children.push_back(child);
-      //fix the world positions and, then, the scene nodes
-      update_w_positions();
     }
 
     /// @brief Update the w_positions information checking the parent and with the current dual-quaternion
@@ -80,22 +76,16 @@ namespace octet{
 
     /// @brief This function will fix his joints and will ask his children to fix themselves
     /// This is a recursion. Careful. Sokol, we are talking to you.
-    void fix_yourself(){
+    void fix_yourself(const DualQuat &n_transform){
       //Fix yourself
-      update_w_positions();
+      update_DQ_w_transform(n_transform);
+
       //Ask your children to fix themselves
       for (size_t i = 0; i < children.size(); ++i)
       {
-        //Tell each child his root position
-        children[i]->set_root_position(leaf_position);
         //Tell him to fix himself
-        children[i]->fix_yourself();
+        children[i]->fix_yourself(world_transform);
       }
-    }
-
-    // @brief This function returns the position of the leaf of the parent
-    void set_root_position(const vec3 &position){
-      root_position = position;
     }
   };
 }
