@@ -27,7 +27,6 @@ namespace octet{
     ref<DQ_Bone> parent; // The root bone will have a NULL parent
     dynarray<DQ_Bone*> children; //The leaf bone will have 0 children
 
-
     /// @brief Updates the world positions of this bone
     /// This function assumes that its parent's joint node has updated world coordinates
     /// This function will fix the world position and the scene_nodes of the joint and bone
@@ -75,17 +74,25 @@ namespace octet{
     }
 
     /// @brief This function will fix his joints and will ask his children to fix themselves
+    /// This function asumes that the current bone has a correct joint_node information (setted by the parent)
     /// This is a recursion. Careful. Sokol, we are talking to you.
     void fix_yourself(const DualQuat &n_transform){
       //Fix yourself
       update_DQ_w_transform(n_transform);
 
+      //dual-quaternion-magically obtain bone node
+      scene_nodes.bone_node->access_nodeToParent() = world_transform.get_matrix();
+
       //Ask your children to fix themselves
       for (size_t i = 0; i < children.size(); ++i)
       {
-        //Tell him to fix himself
+        children[i]->set_joint_node(scene_nodes.bone_node);
         children[i]->fix_yourself(world_transform);
       }
+    }
+
+    void set_joint_node(scene_node* n_node){
+      scene_nodes.joint_node = n_node;
     }
   };
 }
