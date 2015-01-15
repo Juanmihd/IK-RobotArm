@@ -15,6 +15,7 @@ namespace octet{
     // This is the dual-quaternion that contains the information of the curren transform
     DualQuat transform; //local
     DualQuat world_transform; // world
+    float length; //length of the bone
 
     //scene_nodes structure
     struct SceneNodes{
@@ -38,7 +39,7 @@ namespace octet{
   public:
     /// @brief Default constructor of the Bone
     DQ_Bone(){
-      printf("DQ_Bone Contstructor call \n");
+      //printf("DQ_Bone Contstructor call \n");
     }
 
     /// @brief Constructor of the Bone from a Dual-Quaternion
@@ -47,14 +48,15 @@ namespace octet{
     }
 
     /// @brief Constructor of the Bone by a given length
-    DQ_Bone(float length){
+    DQ_Bone(float n_length){
+      length = n_length;
       if (length < 0) length = -length;
-      transform = DualQuat(Quaternion(0, 0, 0, 1), Quaternion(0, length, 0, 0));
+      transform = DualQuat(Quaternion(0, 0, 0, 1), Quaternion(0, length/2.0f, 0, 0));
     }
 
     /// @brief Add the scene nodes for the joint and the bone
     void add_scene_nodes(scene_node* n_joint_node, scene_node* n_bone_node){
-      printf("DQ_Bone add_scene_nodes call\n");
+      //printf("DQ_Bone add_scene_nodes call\n");
       scene_nodes.joint_node = n_joint_node;
       scene_nodes.bone_node = n_bone_node;
     }
@@ -99,6 +101,11 @@ namespace octet{
 
     void set_joint_node(DualQuat &n_transform){
       scene_nodes.joint_node->access_nodeToParent() = n_transform.get_matrix();
+    }
+
+    float get_length(){ 
+      printf("%f\n", length);
+      return length;
     }
   };
 }

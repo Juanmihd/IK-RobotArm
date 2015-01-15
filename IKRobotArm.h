@@ -34,9 +34,9 @@ namespace octet {
       //Init the skeleton (will set the initial position to the parameter given
       debug_skeleton->init();
       //Add the root bone
-      DQ_Bone* root = new DQ_Bone(1.0f);
-      DQ_Bone* forearm = new DQ_Bone(2.0f);
-      DQ_Bone* arm = new DQ_Bone(1.0f);
+      DQ_Bone* root = new DQ_Bone(2.0f);
+      DQ_Bone* forearm = new DQ_Bone(1.0f);
+      DQ_Bone* arm = new DQ_Bone(2.5f);
       debug_skeleton->add_bone(root);
       debug_skeleton->add_bone(forearm, root);
       debug_skeleton->add_bone(arm, forearm);
