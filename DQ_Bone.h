@@ -99,13 +99,21 @@ namespace octet{
       }
     }
 
+    /// Set the joint node
     void set_joint_node(DualQuat &n_transform){
       scene_nodes.joint_node->access_nodeToParent() = n_transform.get_matrix();
     }
 
+    /// returns the length
     float get_length(){ 
       printf("%f\n", length);
       return length;
+    }
+
+    /// rotate the Real Quaternion
+    void rotate(float degrees, vec3 rotation_axis)
+    {
+
     }
   };
 }
