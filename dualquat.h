@@ -104,6 +104,7 @@ namespace octet{
         Quaternion translation = (dual_part * 2.0f) * real_part.conjugate();
         return vec3(translation.get()[0], translation.get()[1], translation.get()[2]);
       }
+
       /// @brief This will return a matrix valid for octet from the dual-quaternion
       /// As a side effect will normalize the current dual-quaternion
       mat4t get_matrix(){

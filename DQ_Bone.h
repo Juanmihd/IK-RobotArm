@@ -41,16 +41,22 @@ namespace octet{
       printf("DQ_Bone Contstructor call \n");
     }
 
-    /// @brief Constructor of the Bone from a Quaternion
-    DQ_Bone(DualQuat n_transfom){}
+    /// @brief Constructor of the Bone from a Dual-Quaternion
+    DQ_Bone(DualQuat n_transfom){
+      transform = n_transfom;
+    }
+
+    /// @brief Constructor of the Bone by a given length
+    DQ_Bone(float length){
+      if (length < 0) length = -length;
+      transform = DualQuat(Quaternion(0, 0, 0, 1), Quaternion(0, length, 0, 0));
+    }
 
     /// @brief Add the scene nodes for the joint and the bone
     void add_scene_nodes(scene_node* n_joint_node, scene_node* n_bone_node){
       printf("DQ_Bone add_scene_nodes call\n");
       scene_nodes.joint_node = n_joint_node;
       scene_nodes.bone_node = n_bone_node;
-
-      //Set up the scene nodes to their proper positions (with the Dual-Quaternion)
     }
 
     /// @brief Adds a parent to this bone
@@ -86,13 +92,13 @@ namespace octet{
       //Ask your children to fix themselves
       for (size_t i = 0; i < children.size(); ++i)
       {
-        children[i]->set_joint_node(scene_nodes.bone_node);
+        children[i]->set_joint_node(world_transform);
         children[i]->fix_yourself(world_transform);
       }
     }
 
-    void set_joint_node(scene_node* n_node){
-      scene_nodes.joint_node = n_node;
+    void set_joint_node(DualQuat &n_transform){
+      scene_nodes.joint_node->access_nodeToParent() = n_transform.get_matrix();
     }
   };
 }

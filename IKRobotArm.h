@@ -28,8 +28,18 @@ namespace octet {
       app_scene =  new visual_scene();
       app_scene->create_default_camera_and_lights();
 
+      //Creating the skeleton. The first thing is to link it to the scene
       debug_skeleton = new DQ_Skeleton();
       debug_skeleton->add_scene(app_scene);
+      //Init the skeleton (will set the initial position to the parameter given
+      debug_skeleton->init();
+      //Add the root bone
+      DQ_Bone* root = new DQ_Bone(1.0f);
+      DQ_Bone* forearm = new DQ_Bone(2.0f);
+      DQ_Bone* arm = new DQ_Bone(1.0f);
+      debug_skeleton->add_bone(root);
+      debug_skeleton->add_bone(forearm, root);
+      debug_skeleton->add_bone(arm, forearm);
     }
 
     /// this is called to draw the world
