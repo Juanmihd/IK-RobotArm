@@ -17,6 +17,14 @@ namespace octet{
     DualQuat world_transform; // world
     float length; //length of the bone
 
+    //Some info to interpolate!
+    DualQuat prev_transform; // previous local
+    DualQuat next_transform; // next local
+    float length; //length of the bone
+    float theta;
+    float costheta;
+    float sintheta;
+
     //scene_nodes structure
     struct SceneNodes{
       ref<scene_node> joint_node;
@@ -114,6 +122,41 @@ namespace octet{
     void rotate(float degrees, vec3 rotation_axis)
     {
 
+    }
+
+    /// @brief This function will set the next position that this bone has to go
+    void set_next_position(DualQuat &n_position){
+      next_transform = n_position;
+      costheta = prev_transform.dot_product(next_transform);
+      theta = acosf(costheta);
+      sintheta = sinf(theta);
+    }
+
+    /// @brief This function will interpolate the bone by the given information
+    /// This function will receive a cur_tic and the total_tic. It will set the
+    /// current world_transform getting into account the initial and the end
+    /// position of the arm
+    void animate_bone(int cur_tic, int total_tics){
+      float tic = 1.0f*cur_tic / total_tics;
+      transform = prev_transform * (sinf((1.0f - tic)*theta) / sintheta) +
+        next_transform * (sinf(tic*theta) / sintheta);
+
+      //Tell all the children to animate themselves
+      for (size_t i = 0; i < children.size(); i++)
+        children[i]->animate_bone(cur_tic, total_tics);
+    }
+
+    void finish_animation(){
+      prev_transform = next_transform;
+      transform = next_transform;
+
+      //Tell all the children to finish themselves
+      for (size_t i = 0; i < children.size(); i++)
+        children[i]->finish_animation();
+    }
+
+    dynarray<DQ_Bone*> * out_children(){
+      return &children;
     }
   };
 }

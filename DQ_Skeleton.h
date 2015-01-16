@@ -100,6 +100,28 @@ namespace octet{
       // update all the joint positions of all the bones
       update_joints();
     }
+
+    void start_animation(){
+
+    }
+
+    /// @brief This will animate the skeleton
+    /// To operate this function, the app will send the "lenght" that the animation will take place 
+    /// Will give a total number of tics, and the cur tic
+    void animate_skeleton(int cur_tic, int total_tics){
+      root_bone->animate_bone(cur_tic, total_tics);
+    }
+
+    void finish_animation(){
+      root_bone->finish_animation();
+    }
+
+    void randomize(DQ_Bone* bone){
+      //FINISH THIS PART
+      for (int i = 0; i < bone->out_children()->size(); ++i){
+        randomize((*bone->out_children())[i]);
+      }
+    }
   };
 }
 
