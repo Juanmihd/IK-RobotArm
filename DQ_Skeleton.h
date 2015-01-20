@@ -29,10 +29,11 @@ namespace octet{
     /// @brief This function will update all the joints of the bones (starting from the root)
     void update_joints(){
       //printf("DQ_Skeleton update_joints call\n");
-      mat4t cylinder_matrix;
       // update current bone's joints
-      if (root_bone != nullptr)
+      if (root_bone != nullptr){
+        //root_bone->animate_bone();
         root_bone->fix_yourself(root_transform);
+      }
     }
 
   public:
@@ -116,12 +117,29 @@ namespace octet{
       root_bone->finish_animation();
     }
 
+    //--- Now will start some functions to set the next position for the arm
+
+    /// @brief It will obtain a completely Random position of the tree
     void randomize(DQ_Bone* bone){
-      //FINISH THIS PART
-      for (int i = 0; i < bone->out_children()->size(); ++i){
-        randomize((*bone->out_children())[i]);
+      //obtain random dual quaternion (only a small random rotation)
+
+      //set the next position of this arm
+      for (int i = 0; i < bone->get_children().size(); ++i){
+        randomize(bone->get_children()[i]);
       }
     }
+
+    /// @brief This will obtain a random position of the arm, but trying to get close to the position
+    /// It will obtain 5 possible positions and will choose the one closer to the objective.
+    void random_algorithm(vec3 position){
+
+    }
+
+    /// @brief This inverse kinematics will obtain the real final set of dualquaternions to the choosen position
+    void IK_algorithm(vec3 position){
+
+    }
+
   };
 }
 

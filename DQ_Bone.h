@@ -20,10 +20,11 @@ namespace octet{
     //Some info to interpolate!
     DualQuat prev_transform; // previous local
     DualQuat next_transform; // next local
-    float length; //length of the bone
     float theta;
     float costheta;
     float sintheta;
+
+    //Info to constraint movement and random generation
 
     //scene_nodes structure
     struct SceneNodes{
@@ -146,6 +147,9 @@ namespace octet{
         children[i]->animate_bone(cur_tic, total_tics);
     }
 
+    /// @brief This function will be called to finish an animation
+    /// This will set the prev_transform and the current transform as the next transform so far
+    /// it will recursively call its children to finish the animation
     void finish_animation(){
       prev_transform = next_transform;
       transform = next_transform;
@@ -155,8 +159,9 @@ namespace octet{
         children[i]->finish_animation();
     }
 
-    dynarray<DQ_Bone*> * out_children(){
-      return &children;
+    /// @brief This function grants access to the children of the node
+    dynarray<DQ_Bone*>  get_children(){
+      return children;
     }
   };
 }
