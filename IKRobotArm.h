@@ -18,6 +18,12 @@ namespace octet {
 
     // skeleton declaration
     DQ_Skeleton* debug_skeleton;
+
+    // Random destination
+    random random_gen;
+
+    int cur_tic;
+    int total_tic;
   public:
     /// this is called when we construct the class before everything is initialised.
     IKRobotArm(int argc, char **argv) : app(argc, argv) {
@@ -34,12 +40,45 @@ namespace octet {
       //Init the skeleton (will set the initial position to the parameter given
       debug_skeleton->init();
       //Add the root bone
-      DQ_Bone* root = new DQ_Bone(4.0f);
+      DQ_Bone* root = new DQ_Bone(0.001f);
+      DQ_Bone* real_root = new DQ_Bone(3.0f);
       DQ_Bone* forearm = new DQ_Bone(2.0f);
-      DQ_Bone* arm = new DQ_Bone(1.0f);
+      DQ_Bone* arm = new DQ_Bone(4.0f);
+      root->constraint_in_axis(1.0f, 1.0f, 1.0f);
+      real_root->constraint_in_axis(1.0f, 1.0f, 1.0f);
+      forearm->constraint_in_axis(1.0f, 0, 0.0f);
+      arm->constraint_in_axis(0.0f, 0, 1.0f);
       debug_skeleton->add_bone(root);
-      debug_skeleton->add_bone(forearm, root);
+      debug_skeleton->add_bone(real_root, root);
+      debug_skeleton->add_bone(forearm, real_root);
       debug_skeleton->add_bone(arm, forearm);
+      skeleton_dance_once(debug_skeleton);
+    }
+
+    /// This will launch a random_dance_movenet
+    void skeleton_dance_once(DQ_Skeleton *skeleton){
+      total_tic = skeleton->start_animation();
+      cur_tic = 0;
+    }
+
+    /// This will define the actions of the user (mouse, keyboard...)
+    void user_actions(){
+      if (is_key_down('A')){
+        if (debug_skeleton->get_status() == _STILL)
+          skeleton_dance_once(debug_skeleton);
+      }
+      else if (is_key_going_down('S')){
+        if (debug_skeleton->get_status() == _STILL){
+          vec3 position = vec3(random_gen.get(-10, 10), random_gen.get(0, 10), random_gen.get(-10, 10));
+          position = position.normalize() * debug_skeleton->get_range();
+          printf("Trying to get to %f, %f, %f\n", position.get()[0], position.get()[1], position.get()[2]);
+          total_tic = debug_skeleton->start_animation(_RANDOM_ALG, position);
+          cur_tic = 0;
+        }
+      }
+      else if (is_key_going_down('Q')){ //Stop all animation
+        debug_skeleton->finish_animation(true);
+      }
     }
 
     /// this is called to draw the world
@@ -48,7 +87,20 @@ namespace octet {
       get_viewport_size(vx, vy);
       app_scene->begin_render(vx, vy);
 
-      // draw the skeleton
+      // controls the arm
+      user_actions();
+
+      //// draw the skeleton
+      if (debug_skeleton->get_status() != _STILL){
+        debug_skeleton->animate_skeleton(cur_tic, total_tic);
+       // printf("Curr_frame: %i\n", cur_tic);
+        ++cur_tic;
+        if (cur_tic > total_tic){
+          cur_tic = 0;
+          total_tic = debug_skeleton->finish_animation();
+        }
+      }
+
       debug_skeleton->draw();
 
       // update matrices. assume 30 fps.
