@@ -33,10 +33,6 @@ namespace octet {
       void normalize(){
         this->normalize();
       }
-      /// @brief This is to be able to access the dot product of the vector
-      float dot(const vec4 &r) const{
-        return this->dot(r);
-      }
     };
 }
 
@@ -65,9 +61,10 @@ namespace octet{
       }
       /// @brief Multiplicator with an scalar
       DualQuat operator*(float scalar){
-        real_part = Quaternion(real_part * scalar);
-        dual_part = Quaternion(dual_part * scalar);
-        return *this;
+        DualQuat ret;
+        ret.real_part = Quaternion(real_part * scalar);
+        ret.dual_part = Quaternion(dual_part * scalar);
+        return ret;
       }
       /// @brief This is to multiply quaternions
       DualQuat qMult(DualQuat n_DualQuat) const{
@@ -88,8 +85,10 @@ namespace octet{
       }
       /// @brief This is to add quaternions
       DualQuat operator+(DualQuat n_DualQuat){
-        real_part = real_part + n_DualQuat.real_part;
-        dual_part = dual_part + n_DualQuat.dual_part;
+        DualQuat ret;
+        ret.real_part = real_part + n_DualQuat.real_part;
+        ret.dual_part = dual_part + n_DualQuat.dual_part;
+        return ret;
       }
       /// @brief This return a new dual-quaternion that is the conjugate of the current one
       DualQuat conjugate(){
@@ -123,6 +122,11 @@ namespace octet{
                       vec4( translation.get()[0],  translation.get()[1],  translation.get()[2]  , 1 ));
 
         return n_matrix;
+      }
+
+      void print_me(){
+        printf("Real part: (%f, %f, %f, %f)\n", real_part.get()[0], real_part.get()[1], real_part.get()[2], real_part.get()[3]);
+        printf("Dual part: (%f, %f, %f, %f)\n", dual_part.get()[0], dual_part.get()[1], dual_part.get()[2], dual_part.get()[3]);
       }
     };
 }
