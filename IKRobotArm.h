@@ -28,6 +28,9 @@ namespace octet {
       app_scene =  new visual_scene();
       app_scene->create_default_camera_and_lights();
 
+      // initialise the object picker
+      object_picker pickobject
+
       //Creating the skeleton. The first thing is to link it to the scene
       debug_skeleton = new DQ_Skeleton();
       debug_skeleton->add_scene(app_scene);
