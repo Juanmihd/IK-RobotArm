@@ -186,7 +186,7 @@ namespace octet {
       else if (is_key_going_down('Q')){ //Stop all animation
         debug_skeleton->finish_animation(true);
       }
-      else if (is_key_going_down(key_))
+      /*else if (is_key_going_down(key_))*/
     }
 
     /// This function handles the raycasting of the 
