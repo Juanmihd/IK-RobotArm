@@ -23,6 +23,8 @@ namespace octet {
 
     // skeleton declaration
     DQ_Skeleton* debug_skeleton;
+    bool dancing_skeleton;
+    bool moving_skeleton;
 
     // Random destination
     random random_gen;
@@ -37,7 +39,7 @@ namespace octet {
 
     /// this is called once OpenGL is initialized
     void app_init() {
-      app_scene =  new visual_scene();
+      app_scene = new visual_scene();
       app_scene->create_default_camera_and_lights();
       //cam = app_scene->get_camera_instance(0);
       //cam->get_scene_node()->access_nodeToParent();
@@ -61,21 +63,29 @@ namespace octet {
       debug_skeleton = new DQ_Skeleton();
       debug_skeleton->add_scene(app_scene);
       //Init the skeleton (will set the initial position to the parameter given
-      debug_skeleton->init();
+      debug_skeleton->init(vec3(2, 5, 0));
+      dancing_skeleton = false;
       //Add the root bone
-      DQ_Bone* root = new DQ_Bone(0.001f);
-      DQ_Bone* real_root = new DQ_Bone(3.0f);
-      DQ_Bone* forearm = new DQ_Bone(2.0f);
+      DQ_Bone* root = new DQ_Bone(0.0001f);
+      DQ_Bone* real_root = new DQ_Bone(2.5f);
+      DQ_Bone* forearm = new DQ_Bone(1.5f);
+      DQ_Bone* second_forearm = new DQ_Bone(1.5f);
       DQ_Bone* arm = new DQ_Bone(4.0f);
-      root->constraint_in_axis(1.0f, 1.0f, 1.0f);
-      real_root->constraint_in_axis(1.0f, 1.0f, 1.0f);
-      forearm->constraint_in_axis(1.0f, 0, 0.0f);
-      arm->constraint_in_axis(0.0f, 0, 1.0f);
+      //root->constraint_in_axis(1.0f, 1.0f, 1.0f);
+      //root->constraint_in_angle(10, -10);
+      //real_root->constraint_in_axis(1.0f, 1.0f, 1.0f);
+      //real_root->constraint_in_angle(10, -10);
+      real_root->constraint_in_axis(0.0f, 1.0f, 0.0f);
+      //forearm->constraint_in_angle(10, -10);
+      forearm->constraint_in_axis(0.0f, 0.0f, 1.0f);
+      //arm->constraint_in_angle(10, -10);
       debug_skeleton->add_bone(root);
       debug_skeleton->add_bone(real_root, root);
       debug_skeleton->add_bone(forearm, real_root);
-      debug_skeleton->add_bone(arm, forearm);
-      skeleton_dance_once(debug_skeleton);
+      debug_skeleton->add_bone(second_forearm, forearm);
+      debug_skeleton->add_bone(arm, second_forearm);
+      skeleton_dance_once(debug_skeleton);//Creating the skeleton. The first thing is to link it to the scene
+      
     }
 
     /// This will launch a random_dance_movenet
@@ -114,10 +124,27 @@ namespace octet {
 			zOfCam = 10;
 		}
       if (is_key_down('A')){
+        debug_skeleton->finish_animation(true);
         if (debug_skeleton->get_status() == _STILL)
           skeleton_dance_once(debug_skeleton);
       }
+      else if (is_key_going_down('D')){
+        dancing_skeleton = !dancing_skeleton;
+      }
+      else if (is_key_down(key_up)){
+        debug_skeleton->init(vec3(0.0f, 5.0f, 5.5f));
+      }
+      else if (is_key_down(key_down)){
+        debug_skeleton->init(vec3(0.0f, 5.0f, -5.5f));
+      }
+      else if (is_key_down(key_left)){
+        debug_skeleton->init(vec3(-5.5f, 5.0f, 0.0f));
+      }
+      else if (is_key_down(key_right)){
+        debug_skeleton->init(vec3(5.5f, 5.0f, 0.0f));
+      }
       else if (is_key_going_down('S')){
+        debug_skeleton->finish_animation(true);
         if (debug_skeleton->get_status() == _STILL){
           vec3 position = vec3(random_gen.get(-10, 10), random_gen.get(0, 10), random_gen.get(-10, 10));
           position = position.normalize() * debug_skeleton->get_range();
@@ -126,20 +153,31 @@ namespace octet {
           cur_tic = 0;
         }
       }
-        else if (is_key_going_down(key_lmb)){
-          if (debug_skeleton->get_status() == _STILL){
-            btVector3 start, end;
-            cast_ray_from_mouse(start, end);
-            btCollisionWorld::ClosestRayResultCallback rayCallBack(start, end);
-            world->rayTest(start, end, rayCallBack);
-            if (rayCallBack.hasHit()){
-              vec3 pos = get_vec3(rayCallBack.m_hitPointWorld);
-              printf("ray cast world pos: x: %f y: %f z: %f\n", rayCallBack.m_hitPointWorld.x(), rayCallBack.m_hitPointWorld.y(), rayCallBack.m_hitPointWorld.z());
-              total_tic = debug_skeleton->start_animation(_RANDOM_ALG, pos);
-              cur_tic = 0;
-            }
+      else if (is_key_going_down('R')){
+        debug_skeleton->finish_animation(true);
+        if (debug_skeleton->get_status() == _STILL){
+          vec3 position = vec3(0.0f, 1.0f, 0.0f);
+          position = position.normalize() * debug_skeleton->get_range();
+          position.get()[1] += 5;
+          total_tic = debug_skeleton->start_animation(_RANDOM_ALG, position);
+          cur_tic = 0;
+        }
+      }
+      else if (is_key_going_down(key_lmb)){
+        debug_skeleton->finish_animation(true);
+        if (debug_skeleton->get_status() == _STILL){
+          btVector3 start, end;
+          cast_ray_from_mouse(start, end);
+          btCollisionWorld::ClosestRayResultCallback rayCallBack(start, end);
+          world->rayTest(start, end, rayCallBack);
+          if (rayCallBack.hasHit()){
+            vec3 pos = get_vec3(rayCallBack.m_hitPointWorld);
+            printf("ray cast world pos: x: %f y: %f z: %f\n", rayCallBack.m_hitPointWorld.x(), rayCallBack.m_hitPointWorld.y(), rayCallBack.m_hitPointWorld.z());
+            total_tic = debug_skeleton->start_animation(_RANDOM_ALG, pos);
+            cur_tic = 0;
           }
         }
+      }
       else if (is_key_going_down('Q')){ //Stop all animation
         debug_skeleton->finish_animation(true);
       }
@@ -171,7 +209,7 @@ namespace octet {
       btVector3 start, end;
 
       // draw the skeleton
-      debug_skeleton->draw();   
+      debug_skeleton->draw();
       // controls the arm
       user_actions();
 
@@ -183,6 +221,11 @@ namespace octet {
         if (cur_tic > total_tic){
           cur_tic = 0;
           total_tic = debug_skeleton->finish_animation();
+        }
+      }
+      else{
+        if (dancing_skeleton){
+          skeleton_dance_once(debug_skeleton);
         }
       }
 
