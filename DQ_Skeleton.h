@@ -235,8 +235,14 @@ namespace octet{
 
     /// @brief This inverse kinematics will obtain the real final set of dualquaternions to the choosen position
     void IK_algorithm(vec3 position){
-
     }
+
+    /// @brief get the positon of the wrist in global space
+    DQ_Bone* get_wrist_pos(){
+      return wrist_bone;
+    }
+
+
   };
 }
 

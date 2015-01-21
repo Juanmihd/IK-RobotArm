@@ -217,9 +217,11 @@
     <ClInclude Include="..\..\shaders\shaders.h" />
     <ClInclude Include="..\..\shaders\texture_shader.h" />
     <ClInclude Include="DQ_Bone.h" />
+    <ClInclude Include="DQ_Sphere.h" />
     <ClInclude Include="dualquat.h" />
     <ClInclude Include="IKRobotArm.h" />
     <ClInclude Include="DQ_Skeleton.h" />
+    <ClInclude Include="Sphere.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\resources\mesh_builder.inl" />
