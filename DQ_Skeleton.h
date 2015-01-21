@@ -43,6 +43,7 @@ namespace octet{
       // update current bone's joints
       if (root_bone != nullptr){
         //root_bone->animate_bone();
+        root_bone->set_joint_node(root_transform);
         root_bone->fix_yourself(root_transform);
       }
     }
@@ -106,6 +107,7 @@ namespace octet{
       // Add child to the parent (or sets the root to be the new bone)
       if (parent == nullptr){
         root_bone = new_bone;
+        root_bone->set_parent(nullptr);
         //fix root_bone world positions
         root_bone->set_joint_node(root_transform);
       }
@@ -134,7 +136,7 @@ namespace octet{
       }
       else if (anim_type == _RANDOM_ALG){
         dest_position = n_position;
-        random_algorithm(dest_position);
+        float distance = random_algorithm(dest_position);
         //obtain the number of tics depending the distance!
         //Get position of the bone
         vec3 next_bone_position = wrist_bone->get_best_position_bone();
@@ -142,7 +144,10 @@ namespace octet{
         //Obtain distance of the wirst bone with n_position
         vec3 v_distance = next_bone_position - bone_position;
         float local_distance = v_distance.length();
-        total_tic = 10;
+        if (distance != 0)
+          total_tic = 2 * distance;
+        else
+          total_tic = 40;
         status = _ALGORITHMING;
       }
 
@@ -175,7 +180,7 @@ namespace octet{
         if (current_distance < 1)
           status = _STILL;
         else
-          random_algorithm(dest_position);
+          total_tic = 2 * random_algorithm(dest_position);
       }
       else
         status = _STILL;
@@ -196,9 +201,9 @@ namespace octet{
     }
 
     /// @brief It will obtain a completely Random position of the tree (as a potential solution)
-    void randomize_best(DQ_Bone* bone){
+    void randomize_best(DQ_Bone* bone, float distance = 1){
       //obtain random dual quaternion (only a small random rotation)
-      DualQuat next_dualquat = bone->generate_random_next(rand_gen.get(-0.5f, 0.5f), rand_gen.get(-1.0f, 1.0f), rand_gen.get(-1.0f, 1.0f), rand_gen.get(-1.0f, 1.0f));
+      DualQuat next_dualquat = bone->generate_random_next(rand_gen.get(-0.5f, 0.5f)*distance, rand_gen.get(-1.0f, 1.0f), rand_gen.get(-1.0f, 1.0f), rand_gen.get(-1.0f, 1.0f));
       bone->set_best_position(next_dualquat);
       //set the next position of this arm
       for (int i = 0; i < bone->get_children().size(); ++i){
@@ -208,21 +213,21 @@ namespace octet{
 
     /// @brief This will obtain a random position of the arm, but trying to get close to the position
     /// It will obtain 5 possible positions and will choose the one closer to the objective.
-    void random_algorithm(vec3 position){
+    float random_algorithm(vec3 position){
       //Initialize values
-      size_t num_tests = 20;
-      float distance_min = 9000000;
+      size_t num_tests = 100;
+      //Obtain distance of the wirst bone with n_position
+      vec3 v_distance = position - wrist_bone->get_best_position_bone();
+      float distance_min = v_distance.length();
       //Start testing things
       for (size_t i = 0; i < num_tests; i++)
       {
         //Generate solution (recursively)
-        randomize_best(root_bone);
+        randomize_best(root_bone, distance_min);
         //Evaluate solution
         root_bone->test_yourself(root_transform);
-        //Get position of the bone
-        vec3 bone_position = wrist_bone->get_best_position_bone();
         //Obtain distance of the wirst bone with n_position
-        vec3 v_distance = position - bone_position;
+        vec3 v_distance = position - wrist_bone->get_best_position_bone();
         float current_distance = v_distance.length();
         //Check solution
         if (current_distance < distance_min){
@@ -231,11 +236,12 @@ namespace octet{
           root_bone->set_best_as_next();
         }
       }
+      return distance_min;
     }
 
-    /// @brief This inverse kinematics will obtain the real final set of dualquaternions to the choosen position
-    void IK_algorithm(vec3 position){
-
+    /// @brief Returns the wirst node from the skeleton (it's a DQ_Bone!)
+    DQ_Bone* get_wrist_node(){
+      return wrist_bone;
     }
   };
 }
