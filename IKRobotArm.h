@@ -41,8 +41,10 @@ namespace octet {
     void app_init() {
       app_scene = new visual_scene();
       app_scene->create_default_camera_and_lights();
-      //cam = app_scene->get_camera_instance(0);
-      //cam->get_scene_node()->access_nodeToParent();
+      cam = app_scene->get_camera_instance(0);
+	  cam->get_node()->access_nodeToParent()[3] = vec4(0, 0, 0, 1);
+	  cam->get_node()->access_nodeToParent().translate(vec3(0, 50, 0));
+	  cam->get_node()->access_nodeToParent().rotateX(-90);
       world = app_scene->get_bt_world();
       assert(world);
 
@@ -107,23 +109,23 @@ namespace octet {
 			app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
 		}
 		//Move Camra Down
-		if (is_key_down('2')){
+		else if (is_key_down('2')){
 			xOfCam = 0;
 			yOfCam = -1;
 			zOfCam = 0;
 			app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
 		}
-		if (is_key_down('3')){
+		else if (is_key_down('3')){
 			xOfCam = 0;
 			yOfCam = 0;
 			zOfCam = -1;
 		}
-		if (is_key_down('4')){
+		else if (is_key_down('4')){
 			xOfCam = 10;
 			yOfCam = 10;
 			zOfCam = 10;
 		}
-		if (is_key_down('5')){
+		else if (is_key_down('5')){
 			xOfCam = 10;
 			yOfCam = 10;
 			zOfCam = 10;
