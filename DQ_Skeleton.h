@@ -239,10 +239,16 @@ namespace octet{
       return distance_min;
     }
 
-    /// @brief Returns the wirst node from the skeleton (it's a DQ_Bone!)
+    /// @brief This inverse kinematics will obtain the real final set of dualquaternions to the choosen position
+    void IK_algorithm(vec3 position){
+    }
+
+    /// @brief Returns the wrist node from the skeleton (it's a DQ_Bone!)
     DQ_Bone* get_wrist_node(){
       return wrist_bone;
     }
+
+
   };
 }
 
