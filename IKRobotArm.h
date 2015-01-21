@@ -96,22 +96,24 @@ namespace octet {
 
     /// This will define the actions of the user (mouse, keyboard...)
     void user_actions(){
+		//Move Camra Left
 		if (is_key_down('1')){
-			xOfCam = 10;
-			yOfCam = 10;
-			zOfCam = 10;
+			xOfCam = -1;
+			yOfCam = 0;
+			zOfCam = 0;
 			app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
 		}
+		//Move Camra Down
 		if (is_key_down('2')){
-			xOfCam = 15;
-			yOfCam = 15;
-			zOfCam = 15;
+			xOfCam = 0;
+			yOfCam = -1;
+			zOfCam = 0;
 			app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
 		}
 		if (is_key_down('3')){
-			xOfCam = 10;
-			yOfCam = 10;
-			zOfCam = 10;
+			xOfCam = 0;
+			yOfCam = 0;
+			zOfCam = -1;
 		}
 		if (is_key_down('4')){
 			xOfCam = 10;
