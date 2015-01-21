@@ -33,7 +33,18 @@ namespace octet{
       app_scene = vs;
       material* purple = new material(vec4(0.5f, 0.2f, 0.8f, 1));
       world_transform[3] = vec4(pos, 1);
-      app_scene->add_shape(mat4t_in(world_transform), new mesh_sphere(vec3(0), radius), purple, true);
+      mesh_instance* mesh_i = app_scene->add_shape(mat4t_in(world_transform), new mesh_sphere(vec3(0), radius), purple, true);
+      scene_node* _node = mesh_i->get_node();
+      rigid_body = _node->get_rigid_body();
+      rigid_body->setActivationState(DISABLE_DEACTIVATION);
+    }
+
+    btRigidBody* get_rigidbody(){
+      return rigid_body;
+    }
+
+    vec3 get_pos(){
+      return world_transform[3].xyz();
     }
 
     /// @brief this function gets the end position of the DQ_Skeleton and then
@@ -45,7 +56,8 @@ namespace octet{
       force = force.normalize();
       float magnitude = force.lengthRecip();
       magnitude = magnetism_power * magnitude * magnitude;
-      rigid_body->applyForce(get_btVector3(force * magnitude), btVector3(0, 0, 0));
+      btVector3 temp = get_btVector3(force * magnitude);
+      this->get_rigidbody()->applyCentralImpulse(temp * 10);
     }
 
   };

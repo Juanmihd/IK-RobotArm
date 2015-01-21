@@ -16,6 +16,7 @@ namespace octet {
   class IKRobotArm : public app {
     // scene for drawing box
     ref<visual_scene> app_scene;
+    DQ_Sphere* test_sphere;
 
     // for the raycasting
     btDiscreteDynamicsWorld *world;
@@ -49,20 +50,14 @@ namespace octet {
       assert(world);
 
       // SH: create debug shape to test object picker (should be removed eventually) 
-      mat4t mat;
       mat4t transform_floor;
       transform_floor.translate(vec3(0, -2, 0));
       transform_floor.rotate(90, 1, 0, 0);
-      material* purple = new material(vec4(0.5f, 0.2f, 0.8f, 1));
       material* green = new material(vec4(0.6f, 0.81f, 0.2f, 1));
-      mat.translate(-3, 6, 0);
-      app_scene->add_shape(mat, new mesh_sphere(vec3(2, 2, 2), 2), purple, true);
       app_scene->add_shape(transform_floor, new mesh_box(vec3(10, 10, 0.5f)), green, false);
       // end of code that should be delete eventually
-
-      DQ_Sphere test_sphere;
-      test_sphere.init(app_scene, vec3(1.0f), 3.0f);
-
+      test_sphere = new DQ_Sphere();
+      test_sphere->init(app_scene, vec3(1.0f), 1.0f);
 
       //Creating the skeleton. The first thing is to link it to the scene
       debug_skeleton = new DQ_Skeleton();
@@ -188,7 +183,14 @@ namespace octet {
       else if (is_key_going_down('Q')){ //Stop all animation
         debug_skeleton->finish_animation(true);
       }
-      /*else if (is_key_going_down(key_))*/
+
+      if (is_key_down(' ')){
+        printf("force is being called!\n");
+        vec3 wrist_pos = debug_skeleton->get_wrist_node()->get_world_position_bone();
+        vec3 sphere_pos = test_sphere->get_pos();
+        vec3 force = sphere_pos - wrist_pos;
+        test_sphere->get_rigidbody()->applyCentralForce(btVector3(10.0f, 10.0f, 10.0f));
+      }
     }
 
     /// This function handles the raycasting of the 
