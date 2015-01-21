@@ -18,7 +18,7 @@ namespace octet{
     // private data for the DQ_sphere. 
     btRigidBody* rigid_body; // allow bt raycasting implementation plus physics sim.
     mat4t world_transform; 
-    float magnetism_power = 3.0f;
+    float magnetism_power = 4.0f;
 
     // pointer to visual scene used to add the shape to the world(s)
     visual_scene* app_scene;
@@ -53,11 +53,11 @@ namespace octet{
     void resolve_magnetic_force(vec3 wrist_pos){
       // calculate vector between the wrist and this sphere
       vec3 force = world_transform[3].xyz() - wrist_pos;
-      force = force.normalize();
       float magnitude = force.lengthRecip();
+      force = force.normalize();
       magnitude = magnetism_power * magnitude * magnitude;
       btVector3 temp = get_btVector3(force * magnitude);
-      this->get_rigidbody()->applyCentralImpulse(temp * 10);
+      this->get_rigidbody()->applyCentralImpulse(temp);
     }
 
   };

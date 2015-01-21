@@ -187,9 +187,7 @@ namespace octet {
       if (is_key_down(' ')){
         printf("force is being called!\n");
         vec3 wrist_pos = debug_skeleton->get_wrist_node()->get_world_position_bone();
-        vec3 sphere_pos = test_sphere->get_pos();
-        vec3 force = sphere_pos - wrist_pos;
-        test_sphere->get_rigidbody()->applyCentralForce(btVector3(10.0f, 10.0f, 10.0f));
+        test_sphere->resolve_magnetic_force(wrist_pos);
       }
     }
 
