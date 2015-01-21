@@ -47,6 +47,7 @@ namespace octet {
       mat4t mat;
       mat4t transform_floor;
       transform_floor.translate(vec3(0, -2, 0));
+      transform_floor.rotate(90, 1, 0, 0);
       material* purple = new material(vec4(0.5f, 0.2f, 0.8f, 1));
       material* green = new material(vec4(0.6f, 0.81f, 0.2f, 1));
       mat.translate(-3, 6, 0);
