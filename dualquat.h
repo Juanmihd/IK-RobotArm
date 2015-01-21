@@ -76,10 +76,14 @@ namespace octet{
 
       /// @brief This is to normalize a dual-quaternion
       void normalize(){
-        float magnitudine = real_part.dot(real_part);
+        float magnitudine = real_part.get()[0] * real_part.get()[0] +
+                            real_part.get()[1] * real_part.get()[1] + 
+                            real_part.get()[2] * real_part.get()[2] + 
+                            real_part.get()[3] * real_part.get()[3];
+        magnitudine = sqrt(magnitudine);
         // This is to correct errors with the float point. If it's close to zero, it's zero!
         // And therefore, if it's zero, it has to "explode"
-        assert(magnitudine > 0.000001f);
+        if (magnitudine == 0) magnitudine = 0.0000001;
         real_part = real_part * (1.0f / magnitudine);
         dual_part = dual_part * (1.0f / magnitudine);
       }

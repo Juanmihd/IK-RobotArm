@@ -49,15 +49,7 @@ namespace octet{
     // Adjacent bones
     ref<DQ_Bone> parent; // The root bone will have a NULL parent
     dynarray<DQ_Bone*> children; //The leaf bone will have 0 children
-
-    /// @brief Updates the world positions of this bone
-    /// This function assumes that its parent's joint node has updated world coordinates
-    /// This function will fix the world position and the scene_nodes of the joint and bone
-    void update_DQ_w_transform(const DualQuat &n_transform){
-      //Use dual-quaternions wizzardy to obtain own leaf position
-      world_transform = n_transform.qMult(transform);
-    }
-
+    
   public:
     /// @brief Default constructor of the Bone
     DQ_Bone(){
@@ -84,7 +76,7 @@ namespace octet{
       rotation_axis = (0.0f, 0.0f, 0.0f);
       angle_min = 0.0f;
       angle_max = 2 * 3.141592653f;
-      angle_inc = 3.141592653f / 4.0f;
+      angle_inc = 3.141592653f / 8.0f;
     }
 
     /// @brief This function will set the range of the random generation of next "jump"
@@ -95,10 +87,17 @@ namespace octet{
       angle_max = n_angle_max;
     }
 
+    /// @brief This function will set the range of the random generation of next "jump"
     void constraint_in_axis(float x, float y, float z){
       rotation_axis = vec3(x, y, z);
       rotation_axis = rotation_axis.normalize();
       rotation_constraint = true;
+    }
+
+    /// @brief This function will set the range of the random generation of next "jump"
+    void constraint_in_angle(float n_angle_min, float n_angle_max){
+      angle_min = n_angle_min;
+      angle_max = n_angle_max;
     }
 
     /// @brief Add the scene nodes for the joint and the bone
@@ -139,12 +138,18 @@ namespace octet{
       return best_world_transform.get_translation();
     }
 
+    /// @brief Returns the estimated position of the bone
+    vec3 get_world_position_bone(){
+      return world_transform.get_translation();
+    }
+
     /// @brief This function will fix his joints and will ask his children to fix themselves
     /// This function asumes that the current bone has a correct joint_node information (setted by the parent)
     /// This is a recursion. Careful. Sokol, we are talking to you.
     void fix_yourself(const DualQuat &n_transform){
       //Fix yourself
-      update_DQ_w_transform(n_transform);
+      world_transform = n_transform.qMult(transform);
+      world_transform.normalize();
 
       //dual-quaternion-magically obtain bone node
       scene_nodes.bone_node->access_nodeToParent() = world_transform.get_matrix();
@@ -163,6 +168,7 @@ namespace octet{
     void test_yourself(const DualQuat &n_transform){
       //Fix yourself
       best_world_transform = n_transform.qMult(best_transform);
+      best_world_transform.normalize();
 
       //Ask your children to fix themselves
       for (size_t i = 0; i < children.size(); ++i)
@@ -225,6 +231,7 @@ namespace octet{
         next_transform * (sinf(tic*theta) / sintheta);
       else
         transform = prev_transform + (next_transform + (prev_transform * -1.0f))*tic;
+      transform.normalize();
       //Tell all the children to animate themselves
       for (size_t i = 0; i < children.size(); i++)
         children[i]->animate_bone(cur_tic, total_tics);
@@ -235,12 +242,10 @@ namespace octet{
     /// it will recursively call its children to finish the animation
     void finish_animation(bool force){
       if (force){
-        printf("Forcing stop!\n");
         prev_transform = transform;
         next_transform = transform;
       }
       else{
-        printf("Naturally stop!\n");
         prev_transform = next_transform;
         transform = next_transform;
       }
@@ -252,15 +257,15 @@ namespace octet{
 
     /// @brief This function generates and return a new random position for this arm
     DualQuat generate_random_next(float new_angle, float x, float y, float z){
-      vec3 new_axis = (x, y, z);
+      vec3 new_axis = vec3(x, y, z);
       //printf("Randomly rotating %f degrees along (%f, %f, %f)\n", new_angle, new_axis.get()[0], new_axis.get()[1], new_axis.get()[2]);
       new_axis = new_axis.normalize();
       if (rotation_constraint)
         new_axis = rotation_axis;
       //printf("\n%f\n", angle_inc);
       new_angle = angle_inc * new_angle;
-      if (new_angle >= 3.14159265f) new_angle = 3.0f;
-      if (new_angle <= -3.14159265f) new_angle = -3.0f;
+      //if (new_angle >= angle_max) new_angle = angle_max;
+      //if (new_angle <= angle_min) new_angle = angle_min;
       float cos_half_angle = cos(new_angle / 2.0f);
       float sin_half_angle = sin(new_angle / 2.0f);
       //printf("Randomly rotating %f degrees along (%f, %f, %f)\n", new_angle, new_axis.get()[0], new_axis.get()[1], new_axis.get()[2]);
