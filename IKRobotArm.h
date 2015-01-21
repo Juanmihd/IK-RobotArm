@@ -27,6 +27,7 @@ namespace octet {
     // Random destination
     random random_gen;
 
+	int xOfCam, yOfCam, zOfCam;
     int cur_tic;
     int total_tic;
   public:
@@ -38,8 +39,8 @@ namespace octet {
     void app_init() {
       app_scene =  new visual_scene();
       app_scene->create_default_camera_and_lights();
-      cam = app_scene->get_camera_instance(0);
-      cam->get_scene_node()->access_nodeToParent();
+      //cam = app_scene->get_camera_instance(0);
+      //cam->get_scene_node()->access_nodeToParent();
       world = app_scene->get_bt_world();
       assert(world);
 
@@ -85,6 +86,33 @@ namespace octet {
 
     /// This will define the actions of the user (mouse, keyboard...)
     void user_actions(){
+		if (is_key_down('1')){
+			xOfCam = 10;
+			yOfCam = 10;
+			zOfCam = 10;
+			app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
+		}
+		if (is_key_down('2')){
+			xOfCam = 15;
+			yOfCam = 15;
+			zOfCam = 15;
+			app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
+		}
+		if (is_key_down('3')){
+			xOfCam = 10;
+			yOfCam = 10;
+			zOfCam = 10;
+		}
+		if (is_key_down('4')){
+			xOfCam = 10;
+			yOfCam = 10;
+			zOfCam = 10;
+		}
+		if (is_key_down('5')){
+			xOfCam = 10;
+			yOfCam = 10;
+			zOfCam = 10;
+		}
       if (is_key_down('A')){
         if (debug_skeleton->get_status() == _STILL)
           skeleton_dance_once(debug_skeleton);
