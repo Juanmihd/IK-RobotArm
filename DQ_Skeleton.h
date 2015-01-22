@@ -203,10 +203,10 @@ namespace octet{
           --num_failed_attemps;
 
         // Debug info
-        printf("Current distance between (%f, %f, %f) and (%f, %f, %f) is... %f\n",
+        /*printf("Current distance between (%f, %f, %f) and (%f, %f, %f) is... %f\n",
           bone_position.get()[0], bone_position.get()[1], bone_position.get()[2],
           dest_position.get()[0], dest_position.get()[1], dest_position.get()[2],
-          current_distance);
+          current_distance);*/
         if (total_tic > 10) 
           total_tic -= 2;
         //If it has arrived to the point, or it cannot improve more...
