@@ -36,8 +36,9 @@ namespace octet {
 
     // Random destination
     random random_gen;
+    mat4t old_cam_position;
+    bool arm_fixed_cam;
 
-    int xOfCam, yOfCam, zOfCam;
     int cur_tic;
     int total_tic;
   public:
@@ -48,6 +49,7 @@ namespace octet {
     /// this is called once OpenGL is initialized
     void app_init() {
       ball_grabbed = -1;
+      arm_fixed_cam = false;
       random_gen.set_seed(time(NULL));
       app_scene = new visual_scene();
       app_scene->create_default_camera_and_lights();
@@ -118,7 +120,6 @@ namespace octet {
       DQ_Bone* arm = new DQ_Bone(4.0f);
       real_root->constraint_in_axis(0.0f, 1.0f, 0.0f);
       forearm->constraint_in_axis(0.0f, 0.0f, 1.0f);
-      arm->constraint_in_axis(0.0f, 1.0f, 0.0f);
       debug_skeleton->add_bone(root);
       debug_skeleton->add_bone(real_root, root);
       debug_skeleton->add_bone(forearm, real_root);
@@ -129,9 +130,20 @@ namespace octet {
       debug_skeleton->init(vec3(0.0f, 5.0f, -10.0f));
     }
 
-
+    // Reseting the game (rethrows the balls from the top)
     void reset_game(){
-
+      for (size_t i = 0; i != _NUM_SPHERES; ++i){
+        //generate a random position for the ball
+        vec3 position = vec3(random_gen.get(-15.0f, 15.0f),
+          2.0f * i,
+          random_gen.get(-10.0f, 10.0f)
+          );
+        spheres[i]->get_rigidbody()->clearForces();
+        spheres[i]->get_rigidbody()->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+        spheres[i]->get_rigidbody()->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+        btTransform reset_transform = btTransform(get_btMatrix3x3(mat4t(1)), get_btVector3(position));
+        spheres[i]->get_rigidbody()->setWorldTransform(reset_transform);
+      }
     }
 
     /// This will launch a random_dance_movenet
@@ -143,31 +155,41 @@ namespace octet {
     /// This will define the actions of the user (mouse, keyboard...)
     void user_actions(){
       //Move Camera Left
-      if (is_key_down('1')){
-        xOfCam = -1;
-        yOfCam = 0;
-        zOfCam = 0;
-        app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
+      if (is_key_down(key_ctrl) && is_key_down('1')){
+        if (!arm_fixed_cam)
+          app_scene->get_camera_instance(0)->get_node()->translate(vec3(-1.0f, 0.0f, 0.0f));
+      }
+      //Move Camera Down
+      else if (is_key_down(key_ctrl) && is_key_down('2')){
+        if (!arm_fixed_cam)
+        app_scene->get_camera_instance(0)->get_node()->translate(vec3(0.0f, -1.0f, 0.0f));
+      }
+      //Move Camera Left
+      else if (is_key_down('1')){
+        if (!arm_fixed_cam)
+        app_scene->get_camera_instance(0)->get_node()->translate(vec3(1.0f, 0.0f, 0.0f));
       }
       //Move Camera Down
       else if (is_key_down('2')){
-        xOfCam = 0;
-        yOfCam = -1;
-        zOfCam = 0;
-        app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
-      }
-      else if (is_key_down('3')){
-        xOfCam = 0;
-        yOfCam = 0;
-        zOfCam = -1;
+        if (!arm_fixed_cam)
+        app_scene->get_camera_instance(0)->get_node()->translate(vec3(0.0f, 1.0f, 0.0f));
       }
       else if (is_key_down('4')){
         camera_node->remove_parent();
+        camera_node->access_nodeToParent() = old_cam_position;
+        arm_fixed_cam = false;
       }
+      /*
       else if (is_key_going_down('5')){
+        arm_fixed_cam = true;
+        vec3 direction = debug_skeleton->get_wrist_node()->obtain_joints().bone_node->get_nodeToParent()[3].xyz() - 
+                         debug_skeleton->get_wrist_node()->obtain_joints().joint_node->get_nodeToParent()[3].xyz();
+        old_cam_position = camera_node->get_nodeToParent();
+        camera_node->access_nodeToParent().loadIdentity();
+        camera_node->access_nodeToParent().rotate(-90, 0, 1, 0);
+        camera_node->access_nodeToParent().translate(vec3(0.0f, 1.5f, 0.0f));
         debug_skeleton->get_wrist_node()->obtain_joints().bone_node->add_child(camera_node);
-
-      }
+      }*/
       if (is_key_down('A')){
         debug_skeleton->finish_animation(true);
         if (debug_skeleton->get_status() == _STILL)
@@ -227,6 +249,9 @@ namespace octet {
           total_tic = debug_skeleton->start_animation(_RANDOM_ALG, position);
           cur_tic = 0;
         }
+      }
+      else if (is_key_going_down('O')){
+        reset_game();
       }
       else if (is_key_going_down(key_lmb)){
         debug_skeleton->finish_animation(true);
@@ -328,6 +353,10 @@ namespace octet {
           skeleton_dance_once(debug_skeleton);
         }
       }
+
+      //Add confetti when dancing
+      if (dancing_skeleton)
+        reset_game();
 
       debug_skeleton->draw();
 
