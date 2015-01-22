@@ -17,10 +17,12 @@ namespace octet {
     // scene for drawing box
     ref<visual_scene> app_scene;
     DQ_Sphere* test_sphere;
+    DQ_Sphere* test_sphere2;
 
     // for the raycasting
     btDiscreteDynamicsWorld *world;
     camera_instance* cam;
+    vec3 dest_position;
 
     // skeleton declaration
     DQ_Skeleton* debug_skeleton;
@@ -54,10 +56,13 @@ namespace octet {
       transform_floor.translate(vec3(0, -2, 0));
       transform_floor.rotate(90, 1, 0, 0);
       material* green = new material(vec4(0.6f, 0.81f, 0.2f, 1));
-      app_scene->add_shape(transform_floor, new mesh_box(vec3(10, 10, 0.5f)), green, false);
+      app_scene->add_shape(transform_floor, new mesh_box(vec3(10, 5, 0.5f)), green, false);
       // end of code that should be delete eventually
       test_sphere = new DQ_Sphere();
       test_sphere->init(app_scene, vec3(1.0f), 1.0f);
+      test_sphere2 = new DQ_Sphere();
+      test_sphere2->init(app_scene, vec3(-1.0f), 1.0f);
+      test_sphere2->set_magnetism_power(-4.0f);
 
       //Creating the skeleton. The first thing is to link it to the scene
       debug_skeleton = new DQ_Skeleton();
@@ -134,24 +139,28 @@ namespace octet {
         dancing_skeleton = !dancing_skeleton;
       }
       else if (is_key_down(key_up)){
-        debug_skeleton->init(vec3(0.0f, 5.0f, 5.5f));
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->translate(vec3(0.0f, 0.0f, 0.5f));
       }
       else if (is_key_down(key_down)){
-        debug_skeleton->init(vec3(0.0f, 5.0f, -5.5f));
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->translate(vec3(0.0f, 0.0f, -0.5f));
       }
       else if (is_key_down(key_left)){
-        debug_skeleton->init(vec3(-5.5f, 5.0f, 0.0f));
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->translate(vec3(-0.5f, 0.0f, 0.0f));
       }
       else if (is_key_down(key_right)){
-        debug_skeleton->init(vec3(5.5f, 5.0f, 0.0f));
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->translate(vec3(0.5f, 0.0f, 0.0f));
       }
       else if (is_key_going_down('S')){
         debug_skeleton->finish_animation(true);
         if (debug_skeleton->get_status() == _STILL){
-          vec3 position = vec3(random_gen.get(-10, 10), random_gen.get(0, 10), random_gen.get(-10, 10));
-          position = position.normalize() * debug_skeleton->get_range();
-          printf("Trying to get to %f, %f, %f\n", position.get()[0], position.get()[1], position.get()[2]);
-          total_tic = debug_skeleton->start_animation(_RANDOM_ALG, position);
+          dest_position = vec3(random_gen.get(-10, 10), random_gen.get(0, 10), random_gen.get(-10, 10));
+          dest_position = dest_position.normalize() * debug_skeleton->get_range();
+          printf("Trying to get to %f, %f, %f\n", dest_position.get()[0], dest_position.get()[1], dest_position.get()[2]);
+          total_tic = debug_skeleton->start_animation(_RANDOM_ALG, dest_position);
           cur_tic = 0;
         }
       }
@@ -174,8 +183,9 @@ namespace octet {
           world->rayTest(start, end, rayCallBack);
           if (rayCallBack.hasHit()){
             vec3 pos = get_vec3(rayCallBack.m_hitPointWorld);
+            vec3 increment = vec3(0.0f, 2.0f, 0.0f);
             printf("ray cast world pos: x: %f y: %f z: %f\n", rayCallBack.m_hitPointWorld.x(), rayCallBack.m_hitPointWorld.y(), rayCallBack.m_hitPointWorld.z());
-            total_tic = debug_skeleton->start_animation(_RANDOM_ALG, pos);
+            total_tic = debug_skeleton->start_animation(_RANDOM_ALG, pos+increment);
             cur_tic = 0;
           }
         }
@@ -187,7 +197,8 @@ namespace octet {
       if (is_key_down(' ')){
         printf("force is being called!\n");
         vec3 wrist_pos = debug_skeleton->get_wrist_node()->get_world_position_bone();
-        test_sphere->resolve_magnetic_force(wrist_pos);
+        test_sphere->resolve_magnetic_force(wrist_pos); 
+        test_sphere2->resolve_magnetic_force(wrist_pos);
       }
     }
 

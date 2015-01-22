@@ -59,7 +59,7 @@ namespace octet{
       root_bone = nullptr;
       // Initialising the meshes and materials
       // create the sphere and cylinder meshes used to draw the skeleton
-      mesh_joint = new mesh_sphere(vec3(0, 0, 0), 0.75f);
+      mesh_joint = new mesh_sphere(vec3(0, 0, 0), 0.4f);
       //set materials
       mat_joint = new material(vec4(1, 0, 0, 1));
       mat_bone = new material(vec4(0, 1, 0, 1));
@@ -69,7 +69,15 @@ namespace octet{
     StatusSkeleton get_status(){ return status; }
 
     /// @brief inits the DQ_SKeleton, it needs a position to where to anchor the root bone
-    void init(const vec3 &position = vec3(0,0,0)){
+    void init(const vec3 &position = vec3(0, 0, 0)){
+      //We obtain a pure translation with no rotation to represent the position of the anchor bone
+      root_transform = DualQuat(Quaternion(0, 0, 0, 1), Quaternion(position.get()[0] / 2.0f, position.get()[1] / 2.0f, position.get()[2] / 2.0f, 0));
+    }
+
+    /// @brief inits the DQ_SKeleton, it needs a position to where to anchor the root bone
+    void translate(const vec3 &translation){
+      vec3 position = root_transform.get_translation();
+      position += translation;
       //We obtain a pure translation with no rotation to represent the position of the anchor bone
       root_transform = DualQuat(Quaternion(0, 0, 0, 1), Quaternion(position.get()[0] / 2.0f, position.get()[1] / 2.0f, position.get()[2] / 2.0f, 0));
     }
@@ -98,7 +106,7 @@ namespace octet{
       mesh_cylinder* mesh_bone;
       cylinder_matrix.translate(0, new_bone->get_length() / 2.0f, 0);
       cylinder_matrix.rotate(90, 1, 0, 0);
-      mesh_bone = new mesh_cylinder(zcylinder(vec3(0), 0.5f, new_bone->get_length() / 2.0f), cylinder_matrix);
+      mesh_bone = new mesh_cylinder(zcylinder(vec3(0), 0.3f, new_bone->get_length() / 2.0f), cylinder_matrix);
       range += new_bone->get_length();
       // we scale the bone mesh
       app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_joint, mat_joint));
@@ -145,7 +153,7 @@ namespace octet{
         vec3 v_distance = next_bone_position - bone_position;
         float local_distance = v_distance.length();
         if (distance != 0)
-          total_tic = 2 * distance;
+          total_tic = (int) (2 * distance);
         else
           total_tic = 40;
         status = _ALGORITHMING;
@@ -171,16 +179,19 @@ namespace octet{
         status = _STILL;
       else if (status == _ALGORITHMING){
         //check distance, if it's close enough, stop! if not, keep on doing that!
-        vec3 bone_position = wrist_bone->get_best_position_bone();
+        vec3 bone_position = wrist_bone->get_world_position_bone();
         //Obtain distance of the wirst bone with n_position
         vec3 v_distance = dest_position - bone_position;
         float current_distance = v_distance.length();
-        printf("Current distance is... %f\n", current_distance);
+        printf("Current distance between (%f, %f, %f) and (%f, %f, %f) is... %f\n",
+          bone_position.get()[0], bone_position.get()[1], bone_position.get()[2],
+          dest_position.get()[0], dest_position.get()[1], dest_position.get()[2],
+          current_distance);
         if (total_tic > 10) total_tic -= 2;
-        if (current_distance < 1)
+        if (current_distance < 0.5f)
           status = _STILL;
         else
-          total_tic = 2 * random_algorithm(dest_position);
+          total_tic = (int) (2 * random_algorithm(dest_position));
       }
       else
         status = _STILL;
@@ -195,7 +206,7 @@ namespace octet{
       DualQuat next_dualquat = bone->generate_random_next(rand_gen.get(-1.0f, 1.0f), rand_gen.get(-1.0f, 1.0f), rand_gen.get(-1.0f, 1.0f), rand_gen.get(-1.0f, 1.0f));
       bone->set_next_position(next_dualquat);
       //set the next position of this arm
-      for (int i = 0; i < bone->get_children().size(); ++i){
+      for (size_t i = 0; i < bone->get_children().size(); ++i){
         randomize(bone->get_children()[i]);
       }
     }
@@ -237,10 +248,6 @@ namespace octet{
         }
       }
       return distance_min;
-    }
-
-    /// @brief This inverse kinematics will obtain the real final set of dualquaternions to the choosen position
-    void IK_algorithm(vec3 position){
     }
 
     /// @brief Returns the wrist node from the skeleton (it's a DQ_Bone!)

@@ -39,10 +39,12 @@ namespace octet{
       rigid_body->setActivationState(DISABLE_DEACTIVATION);
     }
 
+    /// @brief This function is used to get the rigid body of the ball
     btRigidBody* get_rigidbody(){
       return rigid_body;
     }
 
+    /// @brief This function is used to get the position of the ball
     vec3 get_pos(){
       return world_transform[3].xyz();
     }
@@ -60,6 +62,10 @@ namespace octet{
       this->get_rigidbody()->applyCentralImpulse(temp);
     }
 
+    /// @brief This function is used to set the magentism power of the ball
+    void set_magnetism_power(float n_magnetism_power){
+      magnetism_power = n_magnetism_power;
+    }
   };
 }
 
