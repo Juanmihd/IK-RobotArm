@@ -32,7 +32,7 @@ namespace octet {
     // Random destination
     random random_gen;
 
-	int xOfCam, yOfCam, zOfCam;
+    int xOfCam, yOfCam, zOfCam;
     int cur_tic;
     int total_tic;
   public:
@@ -45,19 +45,41 @@ namespace octet {
       app_scene = new visual_scene();
       app_scene->create_default_camera_and_lights();
       cam = app_scene->get_camera_instance(0);
-	  cam->get_node()->access_nodeToParent()[3] = vec4(0, 0, 0, 1);
-	  cam->get_node()->access_nodeToParent().translate(vec3(0, 50, 0));
-	  cam->get_node()->access_nodeToParent().rotateX(-90);
+      cam->get_node()->access_nodeToParent()[3] = vec4(0, 0, 0, 1);
+      cam->get_node()->access_nodeToParent().translate(vec3(0, 50, 0));
+      cam->get_node()->access_nodeToParent().rotateX(-90);
       world = app_scene->get_bt_world();
       assert(world);
 
-      // SH: create debug shape to test object picker (should be removed eventually) 
-      mat4t transform_floor;
-      transform_floor.translate(vec3(0, -2, 0));
-      transform_floor.rotate(90, 1, 0, 0);
+      // SH: table construction
+      mat4t transform;
+      mat4t transform_wall_top;
+      transform.translate(vec3(0, -2, 0));
+      transform.rotate(90, 1, 0, 0);
       material* green = new material(vec4(0.6f, 0.81f, 0.2f, 1));
-      app_scene->add_shape(transform_floor, new mesh_box(vec3(10, 5, 0.5f)), green, false);
-      // end of code that should be delete eventually
+      material* orange = new material(vec4(0.81f, 0.3f, 0.2f, 1));
+      material* blue = new material(vec4(0, 0.5f, 1.0f, 1.0f));
+      app_scene->add_shape(transform, new mesh_box(vec3(16, 10, 0.5f)), green, false);
+      transform.loadIdentity();
+      transform.translate(-18, -2, 2);
+      app_scene->add_shape(transform, new mesh_box(vec3(2, 0.5f, 8)), orange, false);
+      transform.loadIdentity();
+      transform.translate(18, -2, -2);
+      app_scene->add_shape(transform, new mesh_box(vec3(2, 0.5f, 8)), orange, false);
+      transform.loadIdentity();
+      transform.translate(0, 0, -11);
+      app_scene->add_shape(transform, new mesh_box(vec3(20, 2, 1)), blue, false);
+      transform.loadIdentity();
+      transform.translate(0, 0, 11);
+      app_scene->add_shape(transform, new mesh_box(vec3(20, 2, 1)), blue, false);
+      transform.loadIdentity();
+      transform.translate(21, 0, 0);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 12)), blue, false);
+      transform.loadIdentity();
+      transform.translate(-21, 0, 0);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 12)), blue, false);
+      // end of table construction
+      
       test_sphere = new DQ_Sphere();
       test_sphere->init(app_scene, vec3(1.0f), 1.0f);
       test_sphere2 = new DQ_Sphere();
@@ -90,7 +112,7 @@ namespace octet {
       debug_skeleton->add_bone(second_forearm, forearm);
       debug_skeleton->add_bone(arm, second_forearm);
       skeleton_dance_once(debug_skeleton);//Creating the skeleton. The first thing is to link it to the scene
-      
+
     }
 
     /// This will launch a random_dance_movenet
@@ -101,35 +123,35 @@ namespace octet {
 
     /// This will define the actions of the user (mouse, keyboard...)
     void user_actions(){
-		//Move Camra Left
-		if (is_key_down('1')){
-			xOfCam = -1;
-			yOfCam = 0;
-			zOfCam = 0;
-			app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
-		}
-		//Move Camra Down
-		else if (is_key_down('2')){
-			xOfCam = 0;
-			yOfCam = -1;
-			zOfCam = 0;
-			app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
-		}
-		else if (is_key_down('3')){
-			xOfCam = 0;
-			yOfCam = 0;
-			zOfCam = -1;
-		}
-		else if (is_key_down('4')){
-			xOfCam = 10;
-			yOfCam = 10;
-			zOfCam = 10;
-		}
-		else if (is_key_down('5')){
-			xOfCam = 10;
-			yOfCam = 10;
-			zOfCam = 10;
-		}
+      //Move Camra Left
+      if (is_key_down('1')){
+        xOfCam = -1;
+        yOfCam = 0;
+        zOfCam = 0;
+        app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
+      }
+      //Move Camra Down
+      else if (is_key_down('2')){
+        xOfCam = 0;
+        yOfCam = -1;
+        zOfCam = 0;
+        app_scene->get_camera_instance(0)->get_node()->translate(vec3(xOfCam, yOfCam, zOfCam));
+      }
+      else if (is_key_down('3')){
+        xOfCam = 0;
+        yOfCam = 0;
+        zOfCam = -1;
+      }
+      else if (is_key_down('4')){
+        xOfCam = 10;
+        yOfCam = 10;
+        zOfCam = 10;
+      }
+      else if (is_key_down('5')){
+        xOfCam = 10;
+        yOfCam = 10;
+        zOfCam = 10;
+      }
       if (is_key_down('A')){
         debug_skeleton->finish_animation(true);
         if (debug_skeleton->get_status() == _STILL)
@@ -185,7 +207,7 @@ namespace octet {
             vec3 pos = get_vec3(rayCallBack.m_hitPointWorld);
             vec3 increment = vec3(0.0f, 2.0f, 0.0f);
             printf("ray cast world pos: x: %f y: %f z: %f\n", rayCallBack.m_hitPointWorld.x(), rayCallBack.m_hitPointWorld.y(), rayCallBack.m_hitPointWorld.z());
-            total_tic = debug_skeleton->start_animation(_RANDOM_ALG, pos+increment);
+            total_tic = debug_skeleton->start_animation(_RANDOM_ALG, pos + increment);
             cur_tic = 0;
           }
         }
@@ -197,27 +219,27 @@ namespace octet {
       if (is_key_down(' ')){
         printf("force is being called!\n");
         vec3 wrist_pos = debug_skeleton->get_wrist_node()->get_world_position_bone();
-        test_sphere->resolve_magnetic_force(wrist_pos); 
+        test_sphere->resolve_magnetic_force(wrist_pos);
         test_sphere2->resolve_magnetic_force(wrist_pos);
       }
     }
 
     /// This function handles the raycasting of the 
     void cast_ray_from_mouse(btVector3 &bt_start, btVector3 &bt_end){
-        int mx = 0, my = 0;
-        int vx = 0, vy = 0;
-        this->get_mouse_pos(mx, my);
-        this->get_viewport_size(vx, vy);
-        float x = (float)(mx - vx / 2) *2.0f / vx;
-        float y = (float)(vy / 2 - my) *2.0f / vy;
-        cam = app_scene->get_camera_instance(0);
-        ray _ray = cam->get_ray(x, y);
-        
-        vec4 start = vec4(_ray.get_start(), 1);
-        vec4 end = vec4(_ray.get_end(), 1);
+      int mx = 0, my = 0;
+      int vx = 0, vy = 0;
+      this->get_mouse_pos(mx, my);
+      this->get_viewport_size(vx, vy);
+      float x = (float)(mx - vx / 2) *2.0f / vx;
+      float y = (float)(vy / 2 - my) *2.0f / vy;
+      cam = app_scene->get_camera_instance(0);
+      ray _ray = cam->get_ray(x, y);
 
-        bt_start = get_btVector3(start.xyz());
-        bt_end = get_btVector3(end.xyz());
+      vec4 start = vec4(_ray.get_start(), 1);
+      vec4 end = vec4(_ray.get_end(), 1);
+
+      bt_start = get_btVector3(start.xyz());
+      bt_end = get_btVector3(end.xyz());
     }
 
     /// this is called to draw the world
@@ -235,7 +257,7 @@ namespace octet {
       //// draw the skeleton
       if (debug_skeleton->get_status() != _STILL){
         debug_skeleton->animate_skeleton(cur_tic, total_tic);
-       // printf("Curr_frame: %i\n", cur_tic);
+        // printf("Curr_frame: %i\n", cur_tic);
         ++cur_tic;
         if (cur_tic > total_tic){
           cur_tic = 0;
@@ -260,7 +282,7 @@ namespace octet {
       //  }
       //}
       //// update matrices. assume 30 fps.
-      app_scene->update(1.0f/30);
+      app_scene->update(1.0f / 30);
 
       // draw the scene
       app_scene->render((float)vx / vy);
