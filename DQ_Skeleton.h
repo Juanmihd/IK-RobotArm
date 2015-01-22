@@ -15,26 +15,30 @@
 namespace octet{
   enum TypeSkeleton_Anim { _RANDOM_DANCE = -1, _RANDOM_ALG = 0, _IK_ALG = 1 };
   enum StatusSkeleton { _STILL = -1, _ANIMATING = 0, _ALGORITHMING = 1 };
-  enum {_REAL_RANDOM = 1};
+  enum { _REAL_RANDOM = 1, _NUM_FAILED_ATTEMPTS = 10, _NUM_SOLUTIONS = 1000 };
   class DQ_Skeleton{
     //This bone is the root of the skeleton
     ref<DQ_Bone> root_bone;
     ref<DQ_Bone> wrist_bone;
+    // This is the status of the current skeleton
+    StatusSkeleton status;
+    // This is for the stocastich algorithm
+    vec3 dest_position;
+    random rand_gen;
+    float range;
+    float best_distance;
+    int total_tic;
+    size_t num_failed_attemps;
     //This represent where the root bone is anchored
     DualQuat root_transform;
     //Info to draw the meshes 
-    random rand_gen;
     ref<visual_scene> app_scene;
-    // This is the status of the current skeleton
-    StatusSkeleton status; 
-    // This is the current distance to the objective
-    vec3 dest_position;
-    float range;
-    int total_tic;
-
     // sphere mesh set up
     ref<mesh_sphere> mesh_joint;
+    ref<mesh> mesh_hand;
+    ref<scene_node> hand_node;
     ref<material> mat_joint;
+    ref<material> mat_hand;
     ref<material> mat_bone; 
 
     /// @brief This function will update all the joints of the bones (starting from the root)
@@ -52,17 +56,21 @@ namespace octet{
     /// @brief Default constructor of the DQ_Skeleton
     DQ_Skeleton(){
       range = 0;
+      //For the stocastic algorithm
       if (_REAL_RANDOM)
         rand_gen.set_seed(time(NULL));
       status = _STILL;
+      num_failed_attemps = _NUM_FAILED_ATTEMPTS;
       //printf("DQ_Skeleton Contstructor call \n");
       root_bone = nullptr;
       // Initialising the meshes and materials
       // create the sphere and cylinder meshes used to draw the skeleton
-      mesh_joint = new mesh_sphere(vec3(0, 0, 0), 0.4f);
+      mesh_joint = new mesh_sphere(vec3(0.0f, 0.0f, 0.0f), 0.4f);
+      mesh_hand = new mesh_box(vec3(0.5f, 0.5f, 0.5f));
       //set materials
-      mat_joint = new material(vec4(1, 0, 0, 1));
-      mat_bone = new material(vec4(0, 1, 0, 1));
+      mat_joint = new material(vec4(1.0f, 0.0f, 0.0f, 1.0f));
+      mat_bone = new material(vec4(0.0f, 1.0f, 0.0f, 1.0f));
+      mat_hand = new material(vec4(0.0f, 0.0f, 1.0f, 1.0f));
     }
 
     /// @brief This function will return the status of the skeleton
@@ -97,6 +105,7 @@ namespace octet{
       //Create the scene nodes
       scene_node* joint_node = new scene_node();
       scene_node* bone_node = new scene_node();
+      hand_node = new scene_node();
 
       //Add the scene_nodes to the new bone
       new_bone->add_scene_nodes(joint_node, bone_node);
@@ -111,6 +120,7 @@ namespace octet{
       // we scale the bone mesh
       app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_joint, mat_joint));
       app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_bone, mat_bone));
+      app_scene->add_mesh_instance(new mesh_instance(hand_node, mesh_hand, mat_hand));
 
       // Add child to the parent (or sets the root to be the new bone)
       if (parent == nullptr){
@@ -132,8 +142,10 @@ namespace octet{
       //printf("DQ_Skeleton draw call\n");
       // update all the joint positions of all the bones
       update_joints();
+      // Set position hand
+      hand_node->access_nodeToParent() = wrist_bone->get_matrix_bone();
     }
-
+    
     /// @brief This function will generate a new animation
     /// It will return the num of tics expected to produce this animation
     int start_animation(TypeSkeleton_Anim anim_type = _RANDOM_DANCE, vec3 n_position = vec3(0,0,0)){
@@ -143,6 +155,8 @@ namespace octet{
         status = _ANIMATING;
       }
       else if (anim_type == _RANDOM_ALG){
+        best_distance = ~0;
+        num_failed_attemps = _NUM_FAILED_ATTEMPTS;
         dest_position = n_position;
         float distance = random_algorithm(dest_position);
         //obtain the number of tics depending the distance!
@@ -183,12 +197,21 @@ namespace octet{
         //Obtain distance of the wirst bone with n_position
         vec3 v_distance = dest_position - bone_position;
         float current_distance = v_distance.length();
+        //Check the amounts of failed attempts, and stop if it has failed too much
+        if (current_distance < best_distance)
+          best_distance = current_distance;
+        else
+          --num_failed_attemps;
+
+        // Debug info
         printf("Current distance between (%f, %f, %f) and (%f, %f, %f) is... %f\n",
           bone_position.get()[0], bone_position.get()[1], bone_position.get()[2],
           dest_position.get()[0], dest_position.get()[1], dest_position.get()[2],
           current_distance);
-        if (total_tic > 10) total_tic -= 2;
-        if (current_distance < 0.5f)
+        if (total_tic > 10) 
+          total_tic -= 2;
+        //If it has arrived to the point, or it cannot improve more...
+        if (current_distance < 0.5f || num_failed_attemps == 0)
           status = _STILL;
         else
           total_tic = (int) (2 * random_algorithm(dest_position));
@@ -226,7 +249,7 @@ namespace octet{
     /// It will obtain 5 possible positions and will choose the one closer to the objective.
     float random_algorithm(vec3 position){
       //Initialize values
-      size_t num_tests = 100;
+      size_t num_tests = _NUM_SOLUTIONS;
       //Obtain distance of the wirst bone with n_position
       vec3 v_distance = position - wrist_bone->get_best_position_bone();
       float distance_min = v_distance.length();

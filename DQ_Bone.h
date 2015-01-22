@@ -143,6 +143,11 @@ namespace octet{
       return world_transform.get_translation();
     }
 
+    /// @brief Returns the matrix of the bone
+    mat4t get_matrix_bone(){
+      return world_transform.get_matrix();
+    }
+
     /// @brief This function will fix his joints and will ask his children to fix themselves
     /// This function asumes that the current bone has a correct joint_node information (setted by the parent)
     /// This is a recursion. Careful. Sokol, we are talking to you.
