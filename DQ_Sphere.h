@@ -18,6 +18,7 @@ namespace octet{
     // private data for the DQ_sphere. 
     btRigidBody* rigid_body; // allow bt raycasting implementation plus physics sim.
     mat4t world_transform; 
+    ref<scene_node> node;
     float magnetism_power;
 
     // pointer to visual scene used to add the shape to the world(s)
@@ -29,7 +30,7 @@ namespace octet{
     ~DQ_Sphere(){};
 
     /// @brief initialse defaults for the sphere.
-    void init(visual_scene* vs, vec3 pos = vec3(0), float radius = 1.0f, float n_magnetism_power = 4.0f){
+    void init(visual_scene* vs, vec3 pos = vec3(0), float radius = 1.0f, float n_magnetism_power = 40.0f){
       material* purple;
       app_scene = vs;
       magnetism_power = n_magnetism_power;
@@ -39,8 +40,8 @@ namespace octet{
         purple = new material(vec4(0.5f, 0.2f, 0.8f, 1));
       world_transform[3] = vec4(pos, 1);
       mesh_instance* mesh_i = app_scene->add_shape(mat4t_in(world_transform), new mesh_sphere(vec3(0), radius), purple, true);
-      scene_node* _node = mesh_i->get_node();
-      rigid_body = _node->get_rigid_body();
+      node = mesh_i->get_node();
+      rigid_body = node->get_rigid_body();
       rigid_body->setActivationState(DISABLE_DEACTIVATION);
     }
 
@@ -59,11 +60,11 @@ namespace octet{
     /// proportional to the square of the distance to the centre of the SPhere.
     void resolve_magnetic_force(vec3 wrist_pos){
       // calculate vector between the wrist and this sphere
-      vec3 force = world_transform[3].xyz() - wrist_pos;
+      vec3 force = node->get_nodeToParent()[3].xyz() - wrist_pos;
       force.get()[1] = 0.0f;
       float magnitude = force.lengthRecip();
       force = force.normalize();
-      magnitude = magnetism_power * magnitude * magnitude;
+      magnitude = magnetism_power * magnitude;
       btVector3 temp = get_btVector3(force * magnitude);
       this->get_rigidbody()->applyCentralImpulse(temp);
     }

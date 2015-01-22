@@ -16,7 +16,7 @@ namespace octet{
   enum TypeSkeleton_Anim { _RANDOM_DANCE = -1, _RANDOM_ALG = 0, _IK_ALG = 1 };
   enum StatusSkeleton { _STILL = -1, _ANIMATING = 0, _ALGORITHMING = 1 };
   enum { _REAL_RANDOM = 1, _NUM_FAILED_ATTEMPTS = 10, _NUM_SOLUTIONS = 1000 };
-  class DQ_Skeleton{
+  class DQ_Skeleton : public resource{
     //This bone is the root of the skeleton
     ref<DQ_Bone> root_bone;
     ref<DQ_Bone> wrist_bone;
@@ -120,7 +120,7 @@ namespace octet{
       // we scale the bone mesh
       app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_joint, mat_joint));
       app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_bone, mat_bone));
-      app_scene->add_mesh_instance(new mesh_instance(hand_node, mesh_hand, mat_hand));
+      //app_scene->add_mesh_instance(new mesh_instance(hand_node, mesh_hand, mat_hand));
 
       // Add child to the parent (or sets the root to be the new bone)
       if (parent == nullptr){

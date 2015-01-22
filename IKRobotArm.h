@@ -14,11 +14,13 @@
 namespace octet {
   /// Scene containing a box with octet.
   class IKRobotArm : public app {
+    enum {_NUM_SPHERES = 8};
     // scene for drawing box
     ref<visual_scene> app_scene;
     ref<scene_node> camera_node;
     DQ_Sphere* test_sphere;
     DQ_Sphere* test_sphere2;
+    dynarray<ref<DQ_Sphere>> spheres;
 
     // for the raycasting
     btDiscreteDynamicsWorld *world;
@@ -27,6 +29,7 @@ namespace octet {
 
     // skeleton declaration
     DQ_Skeleton* debug_skeleton;
+    dynarray<ref<DQ_Skeleton>> arms;
     bool dancing_skeleton;
     bool moving_skeleton;
 
@@ -43,6 +46,7 @@ namespace octet {
 
     /// this is called once OpenGL is initialized
     void app_init() {
+      random_gen.set_seed(time(NULL));
       app_scene = new visual_scene();
       app_scene->create_default_camera_and_lights();
       cam = app_scene->get_camera_instance(0);
@@ -81,16 +85,28 @@ namespace octet {
       app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 12)), blue, false);
       // end of table construction
 
-      test_sphere = new DQ_Sphere();
-      test_sphere->init(app_scene, vec3(1.0f), 1.0f);
-      test_sphere2 = new DQ_Sphere();
-      test_sphere2->init(app_scene, vec3(-1.0f), 1.0f, -4.0f);
+      // Adding spheres
+      for (size_t i = 0; i != _NUM_SPHERES; ++i){
+        DQ_Sphere* new_sphere = new DQ_Sphere();
+        //generate a random position for the ball
+        vec3 position = vec3(random_gen.get(-15.0f,15.0f),
+                              2.0f * i,
+                              random_gen.get(-10.0f, 10.0f)
+                              );
+        //obtain a random number between 0 and 1, and pic
+        float magnetic_force = (random_gen.get(-1.0f, 1.0f)) < 0.0f ? 40.0f : -40.0f;
+        //obtain 
+        float radius = random_gen.get(0.6f, 1.4f);
+        new_sphere->init(app_scene, position, radius, magnetic_force);
+        spheres.push_back(new_sphere);
+      }
+      // End spheres
 
       //Creating the skeleton. The first thing is to link it to the scene
       debug_skeleton = new DQ_Skeleton();
       debug_skeleton->add_scene(app_scene);
       //Init the skeleton (will set the initial position to the parameter given
-      debug_skeleton->init(vec3(2, 5, 0));
+      debug_skeleton->init(vec3(0, 0, 0));
       dancing_skeleton = false;
       //Add the root bone
       DQ_Bone* root = new DQ_Bone(0.0001f);
@@ -105,8 +121,9 @@ namespace octet {
       debug_skeleton->add_bone(real_root, root);
       debug_skeleton->add_bone(forearm, real_root);
       debug_skeleton->add_bone(second_forearm, forearm);
-      debug_skeleton->add_bone(arm, second_forearm);
+      debug_skeleton->add_bone(arm, second_forearm);   
       skeleton_dance_once(debug_skeleton);//Creating the skeleton. The first thing is to link it to the scene
+
     }
 
     /// This will launch a random_dance_movenet
@@ -140,7 +157,7 @@ namespace octet {
         camera_node->remove_parent();
       }
       else if (is_key_going_down('5')){
-        debug_skeleton->get_wrist_node()->obtain_joints().joint_node->add_child(camera_node);
+        debug_skeleton->get_wrist_node()->obtain_joints().bone_node->add_child(camera_node);
 
       }
       if (is_key_down('A')){
@@ -151,21 +168,37 @@ namespace octet {
       else if (is_key_going_down('D')){
         dancing_skeleton = !dancing_skeleton;
       }
-      else if (is_key_down(key_up)){
-        debug_skeleton->finish_animation(true);
-        debug_skeleton->translate(vec3(0.0f, 0.0f, 0.5f));
-      }
-      else if (is_key_down(key_down)){
+      else if (is_key_down(key_ctrl) && is_key_down(key_up)){
         debug_skeleton->finish_animation(true);
         debug_skeleton->translate(vec3(0.0f, 0.0f, -0.5f));
       }
-      else if (is_key_down(key_left)){
+      else if (is_key_down(key_ctrl) && is_key_down(key_down)){
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->translate(vec3(0.0f, 0.0f, 0.5f));
+      }
+      else if (is_key_down(key_ctrl) && is_key_down(key_left)){
         debug_skeleton->finish_animation(true);
         debug_skeleton->translate(vec3(-0.5f, 0.0f, 0.0f));
       }
-      else if (is_key_down(key_right)){
+      else if (is_key_down(key_ctrl) && is_key_down(key_right)){
         debug_skeleton->finish_animation(true);
         debug_skeleton->translate(vec3(0.5f, 0.0f, 0.0f));
+      }
+      else if (is_key_down(key_up)){
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->init(vec3(0.0f, 5.0f, -10.0f));
+      }
+      else if (is_key_down(key_down)){
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->init(vec3(0.0f, 5.0f, 10.0f));
+      }
+      else if (is_key_down(key_left)){
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->init(vec3(-20.0f, 5.0f, 0.0f));
+      }
+      else if (is_key_down(key_right)){
+        debug_skeleton->finish_animation(true);
+        debug_skeleton->init(vec3(20.0f, 5.0f, 0.0f));
       }
       else if (is_key_going_down('S')){
         debug_skeleton->finish_animation(true);
@@ -207,11 +240,12 @@ namespace octet {
         debug_skeleton->finish_animation(true);
       }
 
-      if (is_key_down(' ')){
+      if (is_key_going_down(' ')){
         printf("force is being called!\n");
         vec3 wrist_pos = debug_skeleton->get_wrist_node()->get_world_position_bone();
-        test_sphere->resolve_magnetic_force(wrist_pos);
-        test_sphere2->resolve_magnetic_force(wrist_pos);
+        for (size_t i = 0; i != _NUM_SPHERES; ++i){
+          spheres[i]->resolve_magnetic_force(wrist_pos);
+        }
       }
     }
 
