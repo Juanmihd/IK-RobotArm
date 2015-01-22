@@ -26,13 +26,14 @@ namespace octet {
     // for the raycasting
     btDiscreteDynamicsWorld *world;
     camera_instance* cam;
-    unsigned char side_of_cam;
     mat4t starting_cam;
     vec3 dest_position;
 
     // skeleton declaration
     DQ_Skeleton* debug_skeleton;
     dynarray<ref<DQ_Skeleton>> arms;
+    float top_bottom;
+    float left_right;
     bool dancing_skeleton;
     bool moving_skeleton;
     int ball_grabbed;
@@ -53,13 +54,14 @@ namespace octet {
     void app_init() {
       ball_grabbed = -1;
       arm_fixed_cam = false;
+      top_bottom = -9.5f;
+      left_right = 0.0f;
       random_gen.set_seed(time(NULL));
       app_scene = new visual_scene();
       camera_tree_node = new scene_node();
       app_scene->create_default_camera_and_lights();
       cam = app_scene->get_camera_instance(0);
       camera_node = app_scene->get_camera_instance(0)->get_node();
-      starting_cam = camera_node->access_nodeToParent();
       camera_node->translate(vec3(0.0f, 25.0f, 0.0f));
       camera_node->rotate(-40.0f, vec3(1.0f, 0.0f, 0.0f));
       camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
@@ -134,7 +136,7 @@ namespace octet {
       debug_skeleton->add_bone(arm, second_forearm);   
       skeleton_dance_once(debug_skeleton);//Creating the skeleton. The first thing is to link it to the scene
 
-      debug_skeleton->init(vec3(0.0f, 5.0f, -10.0f));
+      debug_skeleton->init(vec3(0.0f, 5.0f, -9.5f));
     }
 
     // Reseting the game (rethrows the balls from the top)
@@ -188,26 +190,20 @@ namespace octet {
         }
       }
       else if (is_key_down('3')){
-        camera_node->remove_parent();
-        camera_node->access_nodeToParent() = old_cam_position;
-        arm_fixed_cam = false;
+        arm_fixed_cam = true;
+        camera_tree_node->access_nodeToParent().loadIdentity();
+        camera_tree_node->translate(vec3(0.0f, 50.0f, 0.0f));
+        camera_node->access_nodeToParent().loadIdentity();
+        camera_node->rotate(-90.0f, vec3(1.0f, 0.0f, 0.0f));
       }
       else if (is_key_down('4')){
-        camera_node->remove_parent();
-        camera_node->access_nodeToParent() = old_cam_position;
         arm_fixed_cam = false;
-      }
-      /*
-      else if (is_key_going_down('5')){
-        arm_fixed_cam = true;
-        vec3 direction = debug_skeleton->get_wrist_node()->obtain_joints().bone_node->get_nodeToParent()[3].xyz() - 
-                         debug_skeleton->get_wrist_node()->obtain_joints().joint_node->get_nodeToParent()[3].xyz();
-        old_cam_position = camera_node->get_nodeToParent();
+        camera_tree_node->access_nodeToParent().loadIdentity();
+        camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
         camera_node->access_nodeToParent().loadIdentity();
-        camera_node->access_nodeToParent().rotate(-90, 0, 1, 0);
-        camera_node->access_nodeToParent().translate(vec3(0.0f, 1.5f, 0.0f));
-        debug_skeleton->get_wrist_node()->obtain_joints().bone_node->add_child(camera_node);
-      }*/
+        camera_node->translate(vec3(0.0f, 25.0f, 0.0f));
+        camera_node->rotate(-40.0f, vec3(1.0f, 0.0f, 0.0f));
+      }
       if (is_key_down('A')){
         debug_skeleton->finish_animation(true);
         if (debug_skeleton->get_status() == _STILL)
@@ -216,37 +212,65 @@ namespace octet {
       else if (is_key_going_down('D')){
         dancing_skeleton = !dancing_skeleton;
       }
-      else if (is_key_down(key_ctrl) && is_key_down(key_up)){
+      else if (is_key_down(key_ctrl) && is_key_going_down(key_up)){
         debug_skeleton->finish_animation(true);
-        debug_skeleton->translate(vec3(0.0f, 0.0f, -0.5f));
+        debug_skeleton->init(vec3(0.0f, 5.0f, -9.5f));
+        left_right = 0.0f;
+        top_bottom = -9.5f;
       }
-      else if (is_key_down(key_ctrl) && is_key_down(key_down)){
+      else if (is_key_down(key_ctrl) && is_key_going_down(key_down)){
         debug_skeleton->finish_animation(true);
-        debug_skeleton->translate(vec3(0.0f, 0.0f, 0.5f));
+        debug_skeleton->init(vec3(0.0f, 5.0f, 9.5f));
+        left_right = 0.0f;
+        top_bottom = 9.5f;
       }
-      else if (is_key_down(key_ctrl) && is_key_down(key_left)){
+      else if (is_key_down(key_ctrl) && is_key_going_down(key_left)){
         debug_skeleton->finish_animation(true);
-        debug_skeleton->translate(vec3(-0.5f, 0.0f, 0.0f));
+        debug_skeleton->init(vec3(-19.0f, 5.0f, 0.0f));
+        left_right = -19.0f;
+        top_bottom = 0.0f;
       }
-      else if (is_key_down(key_ctrl) && is_key_down(key_right)){
+      else if (is_key_down(key_ctrl) && is_key_going_down(key_right)){
         debug_skeleton->finish_animation(true);
-        debug_skeleton->translate(vec3(0.5f, 0.0f, 0.0f));
+        debug_skeleton->init(vec3(19.0f, 5.0f, 0.0f));
+        left_right = 19.0f;
+        top_bottom = 0.0f;
       }
       else if (is_key_down(key_up)){
-        debug_skeleton->finish_animation(true);
-        debug_skeleton->init(vec3(0.0f, 5.0f, -10.0f));
+        if (left_right == -19.0f || left_right == 19.0f){
+          if (top_bottom > -9.5f){
+            debug_skeleton->finish_animation(true);
+            debug_skeleton->translate(vec3(0.0f, 0.0f, -0.5f));
+            top_bottom -= 0.5f;
+          }
+        }
       }
       else if (is_key_down(key_down)){
-        debug_skeleton->finish_animation(true);
-        debug_skeleton->init(vec3(0.0f, 5.0f, 10.0f));
+        if (left_right == -19.0f || left_right == 19.0f){
+          if (top_bottom < 9.5f){
+            debug_skeleton->finish_animation(true);
+            debug_skeleton->translate(vec3(0.0f, 0.0f, 0.5f));
+            top_bottom += 0.5f;
+          }
+        }
       }
       else if (is_key_down(key_left)){
-        debug_skeleton->finish_animation(true);
-        debug_skeleton->init(vec3(-20.0f, 5.0f, 0.0f));
+        if (top_bottom == -9.5f || top_bottom == 9.5f){
+          if (left_right > -19.0f){
+            debug_skeleton->finish_animation(true);
+            debug_skeleton->translate(vec3(-0.5f, 0.0f, 0.0f));
+            left_right -= 0.5f;
+          }
+        }
       }
       else if (is_key_down(key_right)){
-        debug_skeleton->finish_animation(true);
-        debug_skeleton->init(vec3(20.0f, 5.0f, 0.0f));
+        if (top_bottom == -9.5f || top_bottom == 9.5f){
+          if (left_right < 19.0f){
+            debug_skeleton->finish_animation(true);
+            debug_skeleton->translate(vec3(0.5f, 0.0f, 0.0f));
+            left_right += 0.5f;
+          }
+        }
       }
       else if (is_key_going_down('S')){
         debug_skeleton->finish_animation(true);
