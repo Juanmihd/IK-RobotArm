@@ -256,7 +256,7 @@ namespace octet {
             spheres[i]->resolve_magnetic_force(wrist_pos);
         }
       }
-
+      /*
       if (is_key_going_down('G')){ //grab the closest ball if is closer than x
         if (ball_grabbed == -1){
           bool found_ball = false;
@@ -277,11 +277,10 @@ namespace octet {
         else{
           spheres[ball_grabbed]->get_node()->remove_parent(); 
           spheres[ball_grabbed]->get_node()->access_nodeToParent() = debug_skeleton->get_wrist_node()->obtain_joints().bone_node->get_nodeToParent();
-          
 
           ball_grabbed = -1;
         }
-      }
+      }*/
     }
 
     /// This function handles the raycasting of the 
