@@ -32,6 +32,7 @@ namespace octet {
     dynarray<ref<DQ_Skeleton>> arms;
     bool dancing_skeleton;
     bool moving_skeleton;
+    int ball_grabbed;
 
     // Random destination
     random random_gen;
@@ -46,6 +47,7 @@ namespace octet {
 
     /// this is called once OpenGL is initialized
     void app_init() {
+      ball_grabbed = -1;
       random_gen.set_seed(time(NULL));
       app_scene = new visual_scene();
       app_scene->create_default_camera_and_lights();
@@ -123,6 +125,12 @@ namespace octet {
       debug_skeleton->add_bone(second_forearm, forearm);
       debug_skeleton->add_bone(arm, second_forearm);   
       skeleton_dance_once(debug_skeleton);//Creating the skeleton. The first thing is to link it to the scene
+
+      debug_skeleton->init(vec3(0.0f, 5.0f, -10.0f));
+    }
+
+
+    void reset_game(){
 
     }
 
@@ -205,7 +213,7 @@ namespace octet {
         if (debug_skeleton->get_status() == _STILL){
           dest_position = vec3(random_gen.get(-10, 10), random_gen.get(0, 10), random_gen.get(-10, 10));
           dest_position = dest_position.normalize() * debug_skeleton->get_range();
-          printf("Trying to get to %f, %f, %f\n", dest_position.get()[0], dest_position.get()[1], dest_position.get()[2]);
+          //printf("Trying to get to %f, %f, %f\n", dest_position.get()[0], dest_position.get()[1], dest_position.get()[2]);
           total_tic = debug_skeleton->start_animation(_RANDOM_ALG, dest_position);
           cur_tic = 0;
         }
@@ -230,7 +238,7 @@ namespace octet {
           if (rayCallBack.hasHit()){
             vec3 pos = get_vec3(rayCallBack.m_hitPointWorld);
             vec3 increment = vec3(0.0f, 2.0f, 0.0f);
-            printf("ray cast world pos: x: %f y: %f z: %f\n", rayCallBack.m_hitPointWorld.x(), rayCallBack.m_hitPointWorld.y(), rayCallBack.m_hitPointWorld.z());
+            //printf("ray cast world pos: x: %f y: %f z: %f\n", rayCallBack.m_hitPointWorld.x(), rayCallBack.m_hitPointWorld.y(), rayCallBack.m_hitPointWorld.z());
             total_tic = debug_skeleton->start_animation(_RANDOM_ALG, pos + increment);
             cur_tic = 0;
           }
@@ -240,11 +248,38 @@ namespace octet {
         debug_skeleton->finish_animation(true);
       }
 
-      if (is_key_going_down(' ')){
-        printf("force is being called!\n");
+      if (is_key_going_down(' ')){ //Magnetise!
+        //printf("force is being called!\n");
         vec3 wrist_pos = debug_skeleton->get_wrist_node()->get_world_position_bone();
         for (size_t i = 0; i != _NUM_SPHERES; ++i){
-          spheres[i]->resolve_magnetic_force(wrist_pos);
+          if (i != ball_grabbed)
+            spheres[i]->resolve_magnetic_force(wrist_pos);
+        }
+      }
+
+      if (is_key_going_down('G')){ //grab the closest ball if is closer than x
+        if (ball_grabbed == -1){
+          bool found_ball = false;
+          vec3 wrist_pos = debug_skeleton->get_wrist_node()->get_world_position_bone();
+          for (size_t i = 0; i != _NUM_SPHERES && !found_ball; ++i){
+            //Check distance
+            vec3 v_distance = spheres[i]->get_node()->get_nodeToParent()[3].xyz() - wrist_pos;
+            float distance = v_distance.length();
+            //if closer than x, grab it, and out
+            if (distance < 3.0f){
+              found_ball = true;
+              ball_grabbed = i;
+              spheres[ball_grabbed]->get_node()->access_nodeToParent() = mat4t(1);
+              debug_skeleton->get_wrist_node()->obtain_joints().bone_node->add_child(spheres[ball_grabbed]->get_node());
+            }
+          }
+        }
+        else{
+          spheres[ball_grabbed]->get_node()->remove_parent(); 
+          spheres[ball_grabbed]->get_node()->access_nodeToParent() = debug_skeleton->get_wrist_node()->obtain_joints().bone_node->get_nodeToParent();
+          
+
+          ball_grabbed = -1;
         }
       }
     }

@@ -120,7 +120,6 @@ namespace octet{
       // we scale the bone mesh
       app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_joint, mat_joint));
       app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_bone, mat_bone));
-      //app_scene->add_mesh_instance(new mesh_instance(hand_node, mesh_hand, mat_hand));
 
       // Add child to the parent (or sets the root to be the new bone)
       if (parent == nullptr){

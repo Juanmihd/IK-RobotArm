@@ -55,6 +55,10 @@ namespace octet{
       return world_transform[3].xyz();
     }
 
+    scene_node* get_node(){
+      return node;
+    }
+
     /// @brief this function gets the end position of the DQ_Skeleton and then
     /// produces an attuenated force on the rigidbody of this sphere inversely 
     /// proportional to the square of the distance to the centre of the SPhere.
