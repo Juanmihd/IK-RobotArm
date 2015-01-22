@@ -18,6 +18,7 @@ namespace octet {
     // scene for drawing box
     ref<visual_scene> app_scene;
     ref<scene_node> camera_node;
+    ref<scene_node> camera_tree_node;
     DQ_Sphere* test_sphere;
     DQ_Sphere* test_sphere2;
     dynarray<ref<DQ_Sphere>> spheres;
@@ -25,6 +26,8 @@ namespace octet {
     // for the raycasting
     btDiscreteDynamicsWorld *world;
     camera_instance* cam;
+    unsigned char side_of_cam;
+    mat4t starting_cam;
     vec3 dest_position;
 
     // skeleton declaration
@@ -52,12 +55,16 @@ namespace octet {
       arm_fixed_cam = false;
       random_gen.set_seed(time(NULL));
       app_scene = new visual_scene();
+      camera_tree_node = new scene_node();
       app_scene->create_default_camera_and_lights();
       cam = app_scene->get_camera_instance(0);
       camera_node = app_scene->get_camera_instance(0)->get_node();
-      cam->get_node()->access_nodeToParent()[3] = vec4(0, 0, 0, 1);
-      cam->get_node()->access_nodeToParent().translate(vec3(0, 50, 0));
-      cam->get_node()->access_nodeToParent().rotateX(-90);
+      starting_cam = camera_node->access_nodeToParent();
+      camera_node->translate(vec3(0.0f, 25.0f, 0.0f));
+      camera_node->rotate(-40.0f, vec3(1.0f, 0.0f, 0.0f));
+      camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
+      camera_tree_node->add_child(camera_node);
+      
       world = app_scene->get_bt_world();
 
       // SH: Table construction 
@@ -166,13 +173,24 @@ namespace octet {
       }
       //Move Camera Left
       else if (is_key_down('1')){
-        if (!arm_fixed_cam)
-        app_scene->get_camera_instance(0)->get_node()->translate(vec3(1.0f, 0.0f, 0.0f));
+        if (!arm_fixed_cam){
+          camera_tree_node->translate(vec3(0.0f, 0.0f, -30.0f));
+          camera_tree_node->rotate(2.0f, vec3(0.0f, 1.0f, 0.0f));
+          camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
+        }
       }
       //Move Camera Down
       else if (is_key_down('2')){
-        if (!arm_fixed_cam)
-        app_scene->get_camera_instance(0)->get_node()->translate(vec3(0.0f, 1.0f, 0.0f));
+        if (!arm_fixed_cam){
+          camera_tree_node->translate(vec3(0.0f, 0.0f, -30.0f));
+          camera_tree_node->rotate(-2.0f, vec3(0.0f, 1.0f, 0.0f));
+          camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
+        }
+      }
+      else if (is_key_down('3')){
+        camera_node->remove_parent();
+        camera_node->access_nodeToParent() = old_cam_position;
+        arm_fixed_cam = false;
       }
       else if (is_key_down('4')){
         camera_node->remove_parent();
@@ -262,7 +280,7 @@ namespace octet {
           world->rayTest(start, end, rayCallBack);
           if (rayCallBack.hasHit()){
             vec3 pos = get_vec3(rayCallBack.m_hitPointWorld);
-            vec3 increment = vec3(0.0f, 2.0f, 0.0f);
+            vec3 increment = vec3(0.0f, 1.0f, 0.0f);
             //printf("ray cast world pos: x: %f y: %f z: %f\n", rayCallBack.m_hitPointWorld.x(), rayCallBack.m_hitPointWorld.y(), rayCallBack.m_hitPointWorld.z());
             total_tic = debug_skeleton->start_animation(_RANDOM_ALG, pos + increment);
             cur_tic = 0;

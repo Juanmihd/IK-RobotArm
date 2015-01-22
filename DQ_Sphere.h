@@ -19,13 +19,16 @@ namespace octet{
     btRigidBody* rigid_body; // allow bt raycasting implementation plus physics sim.
     mat4t world_transform; 
     ref<scene_node> node;
-    float magnetism_power;
+    float magnetism_power; 
+    mesh_instance* mesh_i;
 
     // pointer to visual scene used to add the shape to the world(s)
     visual_scene* app_scene;
 
   public:
-    DQ_Sphere(){};
+    DQ_Sphere(){
+      mesh_i = nullptr;
+    };
 
     ~DQ_Sphere(){};
 
