@@ -14,7 +14,7 @@ How to use this 'game':
   - Spacebar -> Throw a magnetic charge
   - A -> Move the arm to a random position
   - S -> Activate the closest-neighbour algorithm to a random position
-  - D -> Activate party-mode.
+  - D -> Toggle party-mode.
   - R -> Move the arm to the top.
   - O -> Throw the balls again (to play again!)
   - Q -> Stops the current movement!
