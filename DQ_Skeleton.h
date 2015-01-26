@@ -35,6 +35,7 @@ namespace octet{
     ref<visual_scene> app_scene;
     // sphere mesh set up
     ref<mesh_sphere> mesh_joint;
+    ref<mesh_sphere> mesh_root;
     ref<mesh> mesh_hand;
     ref<scene_node> hand_node;
     ref<material> mat_joint;
@@ -65,7 +66,8 @@ namespace octet{
       root_bone = nullptr;
       // Initialising the meshes and materials
       // create the sphere and cylinder meshes used to draw the skeleton
-      mesh_joint = new mesh_sphere(vec3(0.0f, 0.0f, 0.0f), 0.4f);
+      mesh_joint = new mesh_sphere(vec3(0.0f, 0.0f, 0.0f), 0.6f);
+      mesh_root = new mesh_sphere(vec3(0.0f, 0.0f, 0.0f), 1.0f);
       mesh_hand = new mesh_box(vec3(0.5f, 0.5f, 0.5f));
       //set materials
       mat_joint = new material(vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -118,7 +120,10 @@ namespace octet{
       mesh_bone = new mesh_cylinder(zcylinder(vec3(0), 0.3f, new_bone->get_length() / 2.0f), cylinder_matrix);
       range += new_bone->get_length();
       // we scale the bone mesh
-      app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_joint, mat_joint));
+      if (parent == nullptr)
+        app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_root, mat_joint));
+      else
+        app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_joint, mat_joint));
       app_scene->add_mesh_instance(new mesh_instance(new_bone->obtain_joints().joint_node, mesh_bone, mat_bone));
 
       // Add child to the parent (or sets the root to be the new bone)

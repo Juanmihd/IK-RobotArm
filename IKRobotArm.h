@@ -181,9 +181,9 @@ namespace octet {
       for (size_t i = 0; i != _NUM_SPHERES; ++i){
         DQ_Sphere* new_sphere = new DQ_Sphere();
         //generate a random position for the ball
-        vec3 position = vec3(random_gen.get(-15.0f,15.0f),
-                              2.0f * i,
-                              random_gen.get(-10.0f, 10.0f)
+        vec3 position = vec3(random_gen.get(-15.0f, 15.0f),
+                             random_gen.get(2.0f, 7.0f) * i + 7.0f,
+                             random_gen.get(-8.0f, 8.0f)
                               );
         //obtain a random number between 0 and 1, and pic
         float magnetic_force = (random_gen.get(-1.0f, 1.0f)) < 0.0f ? 40.0f : -40.0f;
@@ -191,6 +191,11 @@ namespace octet {
         float radius = random_gen.get(0.6f, 1.4f);
         new_sphere->init(app_scene, position, radius, magnetic_force);
         spheres.push_back(new_sphere);
+        position.get()[0] = position.get()[0] * random_gen.get(0.0f, 0.2f);
+        position.get()[1] = 0;
+        position.get()[2] = position.get()[2] * random_gen.get(0.0f, 0.2f);
+        btVector3 temp = get_btVector3(position * -0.5f);
+        spheres[i]->get_rigidbody()->applyCentralImpulse(temp);
       }
       // End spheres
 
@@ -238,14 +243,19 @@ namespace octet {
       for (size_t i = 0; i != _NUM_SPHERES; ++i){
         //generate a random position for the ball
         vec3 position = vec3(random_gen.get(-15.0f, 15.0f),
-          2.0f * i,
-          random_gen.get(-10.0f, 10.0f)
+          random_gen.get(2.0f, 7.0f) * i + 7.0f,
+          random_gen.get(-8.0f, 8.0f)
           );
         spheres[i]->get_rigidbody()->clearForces();
         spheres[i]->get_rigidbody()->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
         spheres[i]->get_rigidbody()->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
         btTransform reset_transform = btTransform(get_btMatrix3x3(mat4t(1)), get_btVector3(position));
         spheres[i]->get_rigidbody()->setWorldTransform(reset_transform);
+        position.get()[0] = position.get()[0] * random_gen.get(0.0f, 0.2f);
+        position.get()[1] = 0;
+        position.get()[2] = position.get()[2] * random_gen.get(0.0f, 0.2f);
+        btVector3 temp = get_btVector3(position * -0.5f);
+        spheres[i]->get_rigidbody()->applyCentralImpulse(temp);
       }
     }
 
@@ -255,48 +265,40 @@ namespace octet {
       cur_tic = 0;
     }
 
+    void rotate_camera(float angle){
+      camera_tree_node->translate(vec3(0.0f, 0.0f, -30.0f));
+      camera_tree_node->rotate(angle, vec3(0.0f, 1.0f, 0.0f));
+      camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
+    }
+
     /// This will define the actions of the user (mouse, keyboard...)
     void user_actions(){
       //Move Camera Left
-      if (is_key_down(key_ctrl) && is_key_down('1')){
+      if (is_key_down('1')){
         if (!arm_fixed_cam)
-          app_scene->get_camera_instance(0)->get_node()->translate(vec3(-1.0f, 0.0f, 0.0f));
-      }
-      //Move Camera Down
-      else if (is_key_down(key_ctrl) && is_key_down('2')){
-        if (!arm_fixed_cam)
-        app_scene->get_camera_instance(0)->get_node()->translate(vec3(0.0f, -1.0f, 0.0f));
-      }
-      //Move Camera Left
-      else if (is_key_down('1')){
-        if (!arm_fixed_cam){
-          camera_tree_node->translate(vec3(0.0f, 0.0f, -30.0f));
-          camera_tree_node->rotate(2.0f, vec3(0.0f, 1.0f, 0.0f));
-          camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
-        }
+          rotate_camera(-2.0f);
       }
       //Move Camera Down
       else if (is_key_down('2')){
-        if (!arm_fixed_cam){
-          camera_tree_node->translate(vec3(0.0f, 0.0f, -30.0f));
-          camera_tree_node->rotate(-2.0f, vec3(0.0f, 1.0f, 0.0f));
+        if (!arm_fixed_cam)
+          rotate_camera(2.0f);
+      }
+      else if (is_key_going_down('3')){
+        if (arm_fixed_cam){
+          arm_fixed_cam = false;
+          camera_tree_node->access_nodeToParent().loadIdentity();
           camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
+          camera_node->access_nodeToParent().loadIdentity();
+          camera_node->translate(vec3(0.0f, 25.0f, 0.0f));
+          camera_node->rotate(-40.0f, vec3(1.0f, 0.0f, 0.0f));
         }
-      }
-      else if (is_key_down('3')){
-        arm_fixed_cam = true;
-        camera_tree_node->access_nodeToParent().loadIdentity();
-        camera_tree_node->translate(vec3(0.0f, 50.0f, 0.0f));
-        camera_node->access_nodeToParent().loadIdentity();
-        camera_node->rotate(-90.0f, vec3(1.0f, 0.0f, 0.0f));
-      }
-      else if (is_key_down('4')){
-        arm_fixed_cam = false;
-        camera_tree_node->access_nodeToParent().loadIdentity();
-        camera_tree_node->translate(vec3(0.0f, 0.0f, 30.0f));
-        camera_node->access_nodeToParent().loadIdentity();
-        camera_node->translate(vec3(0.0f, 25.0f, 0.0f));
-        camera_node->rotate(-40.0f, vec3(1.0f, 0.0f, 0.0f));
+        else{
+          arm_fixed_cam = true;
+          camera_tree_node->access_nodeToParent().loadIdentity();
+          camera_tree_node->translate(vec3(0.0f, 50.0f, 0.0f));
+          camera_node->access_nodeToParent().loadIdentity();
+          camera_node->rotate(-90.0f, vec3(1.0f, 0.0f, 0.0f));
+        }
       }
       if (is_key_down('A')){
         debug_skeleton->finish_animation(true);
