@@ -69,7 +69,7 @@ namespace octet{
       mesh_hand = new mesh_box(vec3(0.5f, 0.5f, 0.5f));
       //set materials
       mat_joint = new material(vec4(1.0f, 0.0f, 0.0f, 1.0f));
-      mat_bone = new material(vec4(0.0f, 1.0f, 0.0f, 1.0f));
+      mat_bone = new material(vec4(0.8f, 0.8f, 0.8f, 1.0f));
       mat_hand = new material(vec4(0.0f, 0.0f, 1.0f, 1.0f));
     }
 

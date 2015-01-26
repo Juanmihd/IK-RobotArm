@@ -22,6 +22,9 @@ namespace octet {
     DQ_Sphere* test_sphere;
     DQ_Sphere* test_sphere2;
     dynarray<ref<DQ_Sphere>> spheres;
+    dynarray<ref<material>> table_mat;
+    dynarray<ref<mesh_instance>> table_instances; 
+    int index_mat;
 
     // for the raycasting
     btDiscreteDynamicsWorld *world;
@@ -36,7 +39,9 @@ namespace octet {
     float left_right;
     bool dancing_skeleton;
     bool moving_skeleton;
+    bool moving_up_skeleton;
     int ball_grabbed;
+    int magnetism;
 
     // Random destination
     random random_gen;
@@ -52,10 +57,12 @@ namespace octet {
 
     /// this is called once OpenGL is initialized
     void app_init() {
-      ball_grabbed = -1;
+      moving_up_skeleton = false;
+      ball_grabbed = -1; index_mat = 0;
       arm_fixed_cam = false;
       top_bottom = -9.5f;
       left_right = 0.0f;
+      magnetism = 1;
       random_gen.set_seed(time(NULL));
       app_scene = new visual_scene();
       camera_tree_node = new scene_node();
@@ -74,28 +81,100 @@ namespace octet {
       mat4t transform_wall_top;
       transform.translate(vec3(0, -2, 0));
       transform.rotate(90, 1, 0, 0);
-      material* green = new material(vec4(0.6f, 0.81f, 0.2f, 1));
+      image* jupiter = new image("assets/electricfield.gif");
+      image* jupiter_mask = new image("assets/electricfieldmask.gif");
+      image* jupiter2 = new image("assets/electricfield2.gif");
+      image* jupiter_mask2 = new image("assets/electricfield2mask.gif");
+      table_mat.resize(2);
+      table_instances.resize(5);
+      param_shader *shader = new param_shader("shaders/default.vs", "shaders/multitexture.fs");
+      table_mat[0] = new material(vec4(1, 1, 1, 1), shader);
+      table_mat[1] = new material(vec4(1, 1, 1, 1), shader);
+      table_mat[0]->add_sampler(0, app_utils::get_atom("jupiter"), jupiter, new sampler());
+      table_mat[0]->add_sampler(1, app_utils::get_atom("jupiter_mask"), jupiter_mask, new sampler()); //new material(vec4(0.6f, 0.81f, 0.2f, 1));
+      table_mat[1]->add_sampler(0, app_utils::get_atom("jupiter2"), jupiter2, new sampler());
+      table_mat[1]->add_sampler(1, app_utils::get_atom("jupiter_mask2"), jupiter_mask2, new sampler()); //new material(vec4(0.6f, 0.81f, 0.2f, 1));
       material* orange = new material(vec4(0.81f, 0.3f, 0.2f, 1));
-      material* blue = new material(vec4(0, 0.5f, 1.0f, 1.0f));
-      app_scene->add_shape(transform, new mesh_box(vec3(16, 10, 0.5f)), green, false);
-      transform.loadIdentity();
-      transform.translate(-18, -2, 2);
-      app_scene->add_shape(transform, new mesh_box(vec3(2, 0.5f, 8)), orange, false);
-      transform.loadIdentity();
-      transform.translate(18, -2, -2);
-      app_scene->add_shape(transform, new mesh_box(vec3(2, 0.5f, 8)), orange, false);
+      material* purple = new material(vec4(0.5f, 0.0f, 0.5f, 1));
+      material* cold_red = new material(vec4(0.2f, 0.2f, 0.2f, 1));
+
+      image* walls = new image("assets/Walls.gif");
+      image* walls_mask = new image("assets/Walls.gif"); table_mat[1]->add_sampler(0, app_utils::get_atom("jupiter2"), jupiter2, new sampler());
+      param_shader *shader2 = new param_shader("shaders/default.vs", "shaders/multitexture.fs"); 
+      material* transparent = new material(vec4(1, 1, 1, 1), shader2);
+      transparent->add_sampler(0, app_utils::get_atom("walls"), walls, new sampler());
+      transparent->add_sampler(1, app_utils::get_atom("walls_mask"), walls_mask, new sampler());
+      
+      app_scene->add_shape(transform, new mesh_box(vec3(21, 10, 0.5f)), table_mat[0], false);
+      table_instances[0] = app_scene->get_mesh_instance(0);
       transform.loadIdentity();
       transform.translate(0, 0, -11);
-      app_scene->add_shape(transform, new mesh_box(vec3(20, 2, 1)), blue, false);
+      app_scene->add_shape(transform, new mesh_box(vec3(20, 5, 1)), transparent, false);
       transform.loadIdentity();
       transform.translate(0, 0, 11);
-      app_scene->add_shape(transform, new mesh_box(vec3(20, 2, 1)), blue, false);
+      app_scene->add_shape(transform, new mesh_box(vec3(20, 5, 1)), transparent, false);
       transform.loadIdentity();
-      transform.translate(21, 0, 0);
-      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 12)), blue, false);
+      transform.translate(-21, -2, -8);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 6)), transparent, false);
       transform.loadIdentity();
-      transform.translate(-21, 0, 0);
-      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 12)), blue, false);
+      transform.translate(-21, -2, 8);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 6)), transparent, false);
+      transform.loadIdentity();
+      transform.translate(21, -2, 8);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 6)), transparent, false);
+      transform.loadIdentity();
+      transform.translate(21, -2, -8);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 6)), transparent, false);
+      transform.loadIdentity();
+      transform.translate(0, -2, -11);
+      app_scene->add_shape(transform, new mesh_box(vec3(20, 2, 1)), purple, false);
+      transform.translate(0, 6.75, 1.5);
+      app_scene->add_shape(transform, new mesh_box(vec3(22, 0.25, 0.25)), cold_red, false);
+      transform.loadIdentity();
+      transform.translate(0, -2, 11);
+      app_scene->add_shape(transform, new mesh_box(vec3(20, 2, 1)), purple, false);
+      transform.translate(0, 6.75, -1.5);
+      app_scene->add_shape(transform, new mesh_box(vec3(22, 0.25, 0.25)), cold_red, false);
+      transform.loadIdentity();
+      transform.translate(21, -2, 8);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 6)), purple, false);
+      transform.loadIdentity();
+      transform.translate(21, -2, -8);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 6)), purple, false);
+      transform.loadIdentity();
+      transform.translate(21, -2, 0);
+      transform.translate(-2, 6.75, 0);
+      app_scene->add_shape(transform, new mesh_box(vec3(0.25, 0.25, 12)), cold_red, false);
+      transform.loadIdentity();
+      transform.translate(-21, -2, -8);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 6)), purple, false);
+      transform.loadIdentity();
+      transform.translate(-21, -2, 8);
+      app_scene->add_shape(transform, new mesh_box(vec3(1, 2, 6)), purple, false);
+      transform.loadIdentity();
+      transform.translate(-21, -2, 0);
+      transform.translate(2, 6.75, 0);
+      app_scene->add_shape(transform, new mesh_box(vec3(0.25, 0.25, 12)), cold_red, false);
+      transform.loadIdentity();
+      transform.translate(-21, 3, 11);
+      app_scene->add_shape(transform, new mesh_box(vec3(0.5, 6, 0.5)), cold_red, false);
+      transform.translate(0, 1, 0);
+      app_scene->add_shape(transform, new mesh_box(vec3(2.5, 0.25, 2.5)), cold_red, false);
+      transform.loadIdentity();
+      transform.translate(21, 3, 11);
+      app_scene->add_shape(transform, new mesh_box(vec3(0.5, 6, 0.5)), cold_red, false);
+      transform.translate(0, 1, 0);
+      app_scene->add_shape(transform, new mesh_box(vec3(2.5, 0.25, 2.5)), cold_red, false);
+      transform.loadIdentity();
+      transform.translate(-21, 3, -11);
+      app_scene->add_shape(transform, new mesh_box(vec3(0.5, 6, 0.5)), cold_red, false);
+      transform.translate(0, 1, 0);
+      app_scene->add_shape(transform, new mesh_box(vec3(2.5, 0.25, 2.5)), cold_red, false);
+      transform.loadIdentity();
+      transform.translate(21, 3, -11);
+      app_scene->add_shape(transform, new mesh_box(vec3(0.5, 6, 0.5)), cold_red, false);
+      transform.translate(0, 1, 0);
+      app_scene->add_shape(transform, new mesh_box(vec3(2.5, 0.25, 2.5)), cold_red, false);
       // end of table construction
 
       // Adding spheres
@@ -137,6 +216,21 @@ namespace octet {
       skeleton_dance_once(debug_skeleton);//Creating the skeleton. The first thing is to link it to the scene
 
       debug_skeleton->init(vec3(0.0f, 5.0f, -9.5f));
+    }
+
+    // @brief This function launchs the moving up movement
+    void move_up_skeleton(){
+      if (!moving_up_skeleton){
+        moving_up_skeleton = true;
+        debug_skeleton->finish_animation(true);
+        if (debug_skeleton->get_status() == _STILL){
+          vec3 position = vec3(0.0f, 1.0f, 0.0f);
+          position = position.normalize() * debug_skeleton->get_range();
+          position.get()[1] += 5;
+          total_tic = debug_skeleton->start_animation(_RANDOM_ALG, position);
+          cur_tic = 0;
+        }
+      }
     }
 
     // Reseting the game (rethrows the balls from the top)
@@ -237,36 +331,36 @@ namespace octet {
         top_bottom = 0.0f;
       }
       else if (is_key_down(key_up)){
+        move_up_skeleton();
         if (left_right == -19.0f || left_right == 19.0f){
           if (top_bottom > -9.5f){
-            debug_skeleton->finish_animation(true);
             debug_skeleton->translate(vec3(0.0f, 0.0f, -0.5f));
             top_bottom -= 0.5f;
           }
         }
       }
       else if (is_key_down(key_down)){
+        move_up_skeleton();
         if (left_right == -19.0f || left_right == 19.0f){
           if (top_bottom < 9.5f){
-            debug_skeleton->finish_animation(true);
             debug_skeleton->translate(vec3(0.0f, 0.0f, 0.5f));
             top_bottom += 0.5f;
           }
         }
       }
       else if (is_key_down(key_left)){
+        move_up_skeleton();
         if (top_bottom == -9.5f || top_bottom == 9.5f){
           if (left_right > -19.0f){
-            debug_skeleton->finish_animation(true);
             debug_skeleton->translate(vec3(-0.5f, 0.0f, 0.0f));
             left_right -= 0.5f;
           }
         }
       }
       else if (is_key_down(key_right)){
+        move_up_skeleton();
         if (top_bottom == -9.5f || top_bottom == 9.5f){
           if (left_right < 19.0f){
-            debug_skeleton->finish_animation(true);
             debug_skeleton->translate(vec3(0.5f, 0.0f, 0.0f));
             left_right += 0.5f;
           }
@@ -375,6 +469,8 @@ namespace octet {
       app_scene->begin_render(vx, vy);
       btVector3 start, end;
 
+      index_mat = (index_mat + 1) % 20;
+      table_instances[0]->set_material(table_mat[index_mat / 10]);
       // draw the skeleton
       debug_skeleton->draw();
       // controls the arm
@@ -386,6 +482,7 @@ namespace octet {
         // printf("Curr_frame: %i\n", cur_tic);
         ++cur_tic;
         if (cur_tic > total_tic){
+          moving_up_skeleton = false;
           cur_tic = 0;
           total_tic = debug_skeleton->finish_animation();
         }

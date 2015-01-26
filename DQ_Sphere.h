@@ -21,7 +21,6 @@ namespace octet{
     ref<scene_node> node;
     float magnetism_power; 
     mesh_instance* mesh_i;
-
     // pointer to visual scene used to add the shape to the world(s)
     visual_scene* app_scene;
 
@@ -34,15 +33,15 @@ namespace octet{
 
     /// @brief initialse defaults for the sphere.
     void init(visual_scene* vs, vec3 pos = vec3(0), float radius = 1.0f, float n_magnetism_power = 40.0f){
-      material* purple;
+      material* my_material;
       app_scene = vs;
       magnetism_power = n_magnetism_power;
       if (n_magnetism_power < 0)
-        purple = new material(vec4(0.2f, 0.5f, 0.5f, 1));
+        my_material = new material(new image("assets/duckCM.gif"));
       else
-        purple = new material(vec4(0.5f, 0.2f, 0.8f, 1));
+        my_material = new material(new image("assets/grass.jpg"));
       world_transform[3] = vec4(pos, 1);
-      mesh_instance* mesh_i = app_scene->add_shape(mat4t_in(world_transform), new mesh_sphere(vec3(0), radius), purple, true);
+      mesh_instance* mesh_i = app_scene->add_shape(mat4t_in(world_transform), new mesh_sphere(vec3(0), radius), my_material, true);
       node = mesh_i->get_node();
       rigid_body = node->get_rigid_body();
       rigid_body->setActivationState(DISABLE_DEACTIVATION);
