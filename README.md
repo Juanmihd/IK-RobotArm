@@ -25,3 +25,6 @@ How to use this 'game':
  
 This project has been developed by:
 Sam Hayhurst, Juan Miguel Huertas Delgado and Sokol Murturi
+
+
+To use this application, put the images in the folder assets into the octet folder of octet/assets. And then... have fun!!!
